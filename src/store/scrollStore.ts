@@ -1,16 +1,18 @@
 // Mutable singleton store for high-performance 60fps/120fps animation loop
-// Handles both continuous scroll metrics and interactive bespoke mocktail alchemy state
+// Handles continuous scroll metrics and factual 500mL proportional mocktail formulation
 import { audioSystem } from '../utils/audioSystem';
 
 export type BaseDistillate = 'yuzu' | 'blood_orange' | 'juniper';
-export type NootropicStack = 'alpha' | 'social' | 'euphoria';
-export type ChillMode = 'ice' | 'neat';
-export type SealColor = 'gold' | 'noir' | 'copper';
+export type NootropicStack = 'alpha' | 'social' | 'restoration';
+export type BotanicalModifier = 'rosemary' | 'vetiver' | 'shiso';
+export type ChillMode = 'glacial' | 'cellar';
+export type SealColor = 'brass' | 'noir' | 'copper';
 
 export interface BespokeFormula {
-  base: BaseDistillate | null; // null = vessel currently empty
-  nootropic: NootropicStack;
-  chill: ChillMode;
+  base: BaseDistillate | null;       // 320mL (64%)
+  nootropic: NootropicStack | null;  // 80mL  (16%)
+  modifier: BotanicalModifier | null;// 60mL  (12%)
+  chill: ChillMode;                  // 40mL  (8%)
   seal: SealColor;
   customName: string;
   engravedInitials: string;
@@ -26,36 +28,39 @@ export interface CustomerOrder {
 }
 
 export interface PourState {
-  fillLevel: number;        // 0.0 (empty) to 1.0 (full)
-  targetFillLevel: number;
-  isPouring: boolean;       // true when stream pours in from top
-  isDraining: boolean;      // true when vessel empties
+  fillLevel: number;        // Continuous 0.0 to 1.0 (read by Three.js in useFrame)
+  targetFillLevel: number;  // Driven by cumulative volume (320mL -> 400mL -> 460mL -> 500mL)
+  isPouring: boolean;       // Active fluid stream from neck
+  isDraining: boolean;      // Active rotational drainage vortex
+  currentVolumeMl: number;  // Factual volume in mL (0 to 500)
+  targetVolumeMl: number;
   activeBase: BaseDistillate | null;
   pendingBase: BaseDistillate | null;
   statusText: string;
-  infusionPulse: number;    // bumps up on stage 3 nootropic selection
+  waveTurbulence: number;   // Surface ripple intensity
 }
 
 export interface ScrollStore {
-  // Continuous scroll telemetry (read in useFrame / GSAP, never causes React re-renders)
+  // Continuous scroll telemetry (read directly in useFrame, zero React overhead)
   progress: number;
   velocity: number;
   cursor: { x: number; y: number };
   stage: number;
 
-  // Bespoke Formulation Alchemy State
+  // Factual Formulation Alchemy State
   formula: BespokeFormula;
   order: CustomerOrder;
   pour: PourState;
 
-  // Reactivity listeners (strictly for discrete UI updates: clicks, stage crossing, inputs)
+  // Reactivity listeners (discrete UI updates only)
   listeners: Set<() => void>;
   subscribe: (fn: () => void) => () => void;
   notify: () => void;
 
   // Interactive Actions
   selectBase: (base: BaseDistillate) => void;
-  setNootropic: (stack: NootropicStack) => void;
+  selectNootropic: (stack: NootropicStack) => void;
+  selectModifier: (mod: BotanicalModifier) => void;
   setChill: (chill: ChillMode) => void;
   setSeal: (seal: SealColor) => void;
   setCustomName: (name: string) => void;
@@ -63,7 +68,14 @@ export interface ScrollStore {
   setCustomerOrder: (order: Partial<CustomerOrder>) => void;
   confirmOrder: () => void;
   updatePourPhysics: (delta: number) => void;
+  recalculateTargetVolume: () => void;
 }
+
+// Proportional Volume Milestones (Factual 500mL Formulation)
+// Base: 320mL (0.64 fill)
+// Nootropic: +80mL = 400mL (0.80 fill)
+// Modifier: +60mL = 460mL (0.92 fill)
+// Finishing: +40mL = 500mL (1.00 fill)
 
 export const scrollStore: ScrollStore = {
   progress: 0,
@@ -72,23 +84,26 @@ export const scrollStore: ScrollStore = {
   stage: 1,
 
   formula: {
-    base: null, // Starts completely empty!
-    nootropic: 'alpha',
-    chill: 'ice',
-    seal: 'gold',
+    base: null,
+    nootropic: null,
+    modifier: null,
+    chill: 'glacial',
+    seal: 'brass',
     customName: 'AETHER // BESPOKE',
     engravedInitials: 'AT',
   },
 
   pour: {
-    fillLevel: 0.0, // Empty vessel at genesis
+    fillLevel: 0.0,
     targetFillLevel: 0.0,
     isPouring: false,
     isDraining: false,
+    currentVolumeMl: 0,
+    targetVolumeMl: 0,
     activeBase: null,
     pendingBase: null,
-    statusText: 'Vessel Unfilled',
-    infusionPulse: 0,
+    statusText: 'Vessel Unfilled (0 / 500mL)',
+    waveTurbulence: 0,
   },
 
   order: {
@@ -113,16 +128,26 @@ export const scrollStore: ScrollStore = {
     this.listeners.forEach((fn) => fn());
   },
 
-  // Robust, bug-free liquid pouring and draining state machine
+  // Calculate factual cumulative target volume based on selections
+  recalculateTargetVolume() {
+    let vol = 0;
+    if (this.formula.base) vol += 320;
+    if (this.formula.nootropic) vol += 80;
+    if (this.formula.modifier) vol += 60;
+    if (this.formula.chill) vol += 40;
+
+    this.pour.targetVolumeMl = vol;
+    this.pour.targetFillLevel = vol / 500;
+  },
+
+  // Selecting Base Distillate (320mL Foundation)
   selectBase(base: BaseDistillate) {
     const p = this.pour;
 
-    // If already active or queued for this base and not currently draining, ignore duplicate click
-    if ((p.activeBase === base || p.pendingBase === base) && !p.isDraining) {
+    if (p.activeBase === base && !p.isDraining) {
       return;
     }
 
-    // If currently draining, smoothly switch the pending destination
     if (p.isDraining) {
       p.pendingBase = base;
       this.notify();
@@ -130,88 +155,66 @@ export const scrollStore: ScrollStore = {
     }
 
     if (!p.activeBase || p.fillLevel < 0.05) {
-      // Bottle is empty -> Pour directly
+      // Pour foundation directly
       this.formula.base = base;
       p.activeBase = base;
       p.pendingBase = null;
       p.isPouring = true;
       p.isDraining = false;
-      p.targetFillLevel = 1.0;
-      p.statusText = 'Infusing distillation stream...';
+      this.recalculateTargetVolume();
+      p.statusText = 'Pouring 320mL primary distillation...';
       audioSystem.playPour();
       this.notify();
     } else {
-      // Bottle already has liquid -> Drain smoothly first, then pour the new selection
+      // Drain vessel smoothly first to clear old blend
       p.pendingBase = base;
       p.isDraining = true;
       p.isPouring = false;
       p.targetFillLevel = 0.0;
-      p.statusText = 'Clearing vessel for new distillation...';
+      p.statusText = 'Clearing vessel for fresh formulation...';
       audioSystem.playDrain();
       this.notify();
     }
   },
 
-  // Ticked every frame in useFrame (60fps) to smoothly advance fillLevel without React overhead
-  updatePourPhysics(delta: number) {
-    const p = this.pour;
-    let needsNotification = false;
-
-    // Gracefully commence initial pour if user scrolls into Stage 2 without manual click
-    if (this.progress >= 0.22 && !this.formula.base && !p.isPouring && !p.isDraining && !p.pendingBase) {
-      this.selectBase('yuzu');
+  // Selecting Bioactive Adaptogen Stack (+80mL)
+  selectNootropic(stack: NootropicStack) {
+    if (!this.formula.base) {
+      this.selectBase('yuzu'); // Ensure foundation is present
     }
-
-    if (p.isDraining) {
-      // Drain smoothly down to 0
-      p.fillLevel = Math.max(0, p.fillLevel - delta * 1.5);
-      if (p.fillLevel <= 0.01) {
-        p.fillLevel = 0.0;
-        p.isDraining = false;
-        // Switch formula base to pending base and commence pour
-        if (p.pendingBase) {
-          const nextBase = p.pendingBase;
-          this.formula.base = nextBase;
-          p.activeBase = nextBase;
-          p.pendingBase = null;
-          p.isPouring = true;
-          p.targetFillLevel = 1.0;
-          p.statusText = 'Infusing fresh distillation stream...';
-          audioSystem.playPour();
-          needsNotification = true;
-        } else {
-          p.statusText = 'Vessel Empty';
-          needsNotification = true;
-        }
-      }
-    } else if (p.isPouring) {
-      // Rise smoothly up to 1.0 with fluid easing
-      p.fillLevel = Math.min(1.0, p.fillLevel + delta * 1.0);
-      if (p.fillLevel >= 0.99) {
-        p.fillLevel = 1.0;
-        p.isPouring = false;
-        p.statusText = 'Vessel at capacity';
-        needsNotification = true;
-      }
-    }
-
-    if (p.infusionPulse > 0) {
-      p.infusionPulse = Math.max(0, p.infusionPulse - delta * 0.8);
-    }
-
-    if (needsNotification) {
-      this.notify();
-    }
+    this.formula.nootropic = stack;
+    this.recalculateTargetVolume();
+    this.pour.isPouring = true;
+    this.pour.statusText = 'Infusing 80mL bioactive adaptogen extract...';
+    this.pour.waveTurbulence = 1.0;
+    audioSystem.playPour();
+    this.notify();
   },
 
-  setNootropic(stack: NootropicStack) {
-    this.formula.nootropic = stack;
-    this.pour.infusionPulse = 1.0; // Trigger botanical particulate bloom in WebGL
+  // Selecting Botanical Modifier Cordial (+60mL)
+  selectModifier(mod: BotanicalModifier) {
+    if (!this.formula.base) this.selectBase('yuzu');
+    if (!this.formula.nootropic) this.selectNootropic('alpha');
+
+    this.formula.modifier = mod;
+    this.recalculateTargetVolume();
+    this.pour.isPouring = true;
+    this.pour.statusText = 'Blending 60mL botanical modifier hydrosol...';
+    this.pour.waveTurbulence = 0.8;
+    audioSystem.playPour();
     this.notify();
   },
 
   setChill(chill: ChillMode) {
     this.formula.chill = chill;
+    this.recalculateTargetVolume();
+    if (chill === 'glacial') {
+      audioSystem.playClink();
+      this.pour.statusText = 'Vessel chilled: 4°C with hand-cut artisanal ice';
+    } else {
+      audioSystem.playClick(750);
+      this.pour.statusText = 'Cellar serve: 18°C ambient botanical expression';
+    }
     this.notify();
   },
 
@@ -240,5 +243,65 @@ export const scrollStore: ScrollStore = {
     this.order.serialNumber = `AETH-BESPOKE-${randomHex}`;
     this.order.confirmed = true;
     this.notify();
+  },
+
+  // High-precision fluid physics tick (runs in useFrame at 60/120fps)
+  updatePourPhysics(delta: number) {
+    const p = this.pour;
+    let needsNotification = false;
+
+    // Automatic initial pour when scrolling into Stage 2 if user hasn't clicked yet
+    if (this.progress >= 0.20 && !this.formula.base && !p.isPouring && !p.isDraining && !p.pendingBase) {
+      this.selectBase('yuzu');
+    }
+
+    if (p.isDraining) {
+      // Liquid drains down with vortex swirl
+      p.fillLevel = Math.max(0, p.fillLevel - delta * 1.5);
+      p.currentVolumeMl = Math.round(p.fillLevel * 500);
+
+      if (p.fillLevel <= 0.01) {
+        p.fillLevel = 0.0;
+        p.currentVolumeMl = 0;
+        p.isDraining = false;
+
+        // Switch to pending base and commence fresh proportional pour
+        if (p.pendingBase) {
+          const nextBase = p.pendingBase;
+          this.formula.base = nextBase;
+          p.activeBase = nextBase;
+          p.pendingBase = null;
+          p.isPouring = true;
+          this.recalculateTargetVolume();
+          p.statusText = 'Pouring 320mL primary distillation...';
+          audioSystem.playPour();
+          needsNotification = true;
+        } else {
+          p.statusText = 'Vessel Empty (0 / 500mL)';
+          needsNotification = true;
+        }
+      }
+    } else if (p.isPouring) {
+      // Liquid rises smoothly toward target proportional level
+      if (p.fillLevel < p.targetFillLevel) {
+        p.fillLevel = Math.min(p.targetFillLevel, p.fillLevel + delta * 0.85);
+        p.currentVolumeMl = Math.round(p.fillLevel * 500);
+      } else {
+        p.fillLevel = p.targetFillLevel;
+        p.currentVolumeMl = p.targetVolumeMl;
+        p.isPouring = false;
+        p.statusText = `Formulation at ${p.currentVolumeMl}mL / 500mL`;
+        needsNotification = true;
+      }
+    }
+
+    // Decay fluid wave turbulence
+    if (p.waveTurbulence > 0) {
+      p.waveTurbulence = Math.max(0, p.waveTurbulence - delta * 0.75);
+    }
+
+    if (needsNotification) {
+      this.notify();
+    }
   }
 };

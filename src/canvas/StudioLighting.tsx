@@ -10,8 +10,8 @@ export function StudioLighting() {
 
   const baseUplights: Record<string, THREE.Color> = {
     yuzu: new THREE.Color('#D97706'),
-    blood_orange: new THREE.Color('#DC2626'),
-    juniper: new THREE.Color('#059669'),
+    blood_orange: new THREE.Color('#991B1B'),
+    juniper: new THREE.Color('#065F46'),
   };
 
   const defaultUplight = new THREE.Color('#C59B27');
@@ -21,16 +21,16 @@ export function StudioLighting() {
     const formula = scrollStore.formula;
     const pour = scrollStore.pour;
 
-    // Up light follows liquid distillate color and fill level
+    // Up light follows liquid distillate color and proportional volume
     const targetColor = formula.base ? baseUplights[formula.base] : defaultUplight;
     currentUpColor.current.lerp(targetColor, delta * 3.5);
 
     if (upLightRef.current) {
       upLightRef.current.color.copy(currentUpColor.current);
-      // Brightens only as liquid fills the vessel!
+      // Illuminates only as liquid fills the vessel
       const targetIntensity = pour.fillLevel > 0.05 
-        ? (formula.chill === 'ice' ? 4.5 * pour.fillLevel : 3.8 * pour.fillLevel)
-        : 0.25;
+        ? (formula.chill === 'glacial' ? 5.2 * pour.fillLevel : 4.4 * pour.fillLevel)
+        : 0.15;
 
       upLightRef.current.intensity = THREE.MathUtils.damp(
         upLightRef.current.intensity,
@@ -58,7 +58,7 @@ export function StudioLighting() {
         {/* Gallery studio softbox - top */}
         <Lightformer
           form="rect"
-          intensity={3.5}
+          intensity={3.8}
           scale={[5, 4, 1]}
           position={[0, 5, 2]}
           rotation={[Math.PI / 3, 0, 0]}
@@ -68,26 +68,26 @@ export function StudioLighting() {
         {/* Sculpting dark rim flags - essential for glass clarity against light backgrounds! */}
         <Lightformer
           form="rect"
-          intensity={2.8}
+          intensity={3.2}
           scale={[0.8, 8, 1]}
           position={[-3.5, 0, -1]}
           rotation={[0, Math.PI / 3, 0]}
-          color="#22201D"
+          color="#1A1816"
         />
 
         <Lightformer
           form="rect"
-          intensity={2.8}
+          intensity={3.2}
           scale={[0.8, 8, 1]}
           position={[3.5, 0, -1]}
           rotation={[0, -Math.PI / 3, 0]}
-          color="#22201D"
+          color="#1A1816"
         />
 
         {/* Warm amber floor bounce */}
         <Lightformer
           form="ring"
-          intensity={1.8}
+          intensity={2.0}
           scale={[4, 4, 1]}
           position={[0, -3, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
@@ -107,12 +107,12 @@ export function StudioLighting() {
       {/* Subtle rim backlight for glass refraction */}
       <directionalLight
         position={[-3, 2, -3]}
-        intensity={2.2}
+        intensity={2.4}
         color="#F8F3EC"
       />
       <directionalLight
         position={[3, 2, -3]}
-        intensity={2.2}
+        intensity={2.4}
         color="#EFE8DE"
       />
 

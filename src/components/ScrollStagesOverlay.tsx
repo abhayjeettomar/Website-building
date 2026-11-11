@@ -7,12 +7,14 @@ import {
   ShieldCheck, 
   Droplet,
   Layers,
-  Award
+  Award,
+  Sparkles
 } from 'lucide-react';
 import { 
   scrollStore, 
   BaseDistillate, 
   NootropicStack, 
+  BotanicalModifier,
   ChillMode, 
   SealColor 
 } from '../store/scrollStore';
@@ -25,8 +27,7 @@ export function ScrollStagesOverlay() {
   const [pourState, setPourState] = useState({ ...scrollStore.pour });
 
   useEffect(() => {
-    // Only triggers updates on discrete events (stage crossing, button click, input edit)
-    // ZERO continuous scroll re-render lag!
+    // Strictly listens to discrete events (zero continuous scroll re-renders!)
     const unsub = scrollStore.subscribe(() => {
       setActiveStage(scrollStore.stage);
       setFormula({ ...scrollStore.formula });
@@ -43,15 +44,15 @@ export function ScrollStagesOverlay() {
 
   const handleSelectNootropic = (stackId: NootropicStack) => {
     audioSystem.playClick(1050);
-    scrollStore.setNootropic(stackId);
+    scrollStore.selectNootropic(stackId);
+  };
+
+  const handleSelectModifier = (modId: BotanicalModifier) => {
+    audioSystem.playClick(960);
+    scrollStore.selectModifier(modId);
   };
 
   const handleSelectChill = (mode: ChillMode) => {
-    if (mode === 'ice') {
-      audioSystem.playClink();
-    } else {
-      audioSystem.playClick(750);
-    }
     scrollStore.setChill(mode);
   };
 
@@ -60,70 +61,94 @@ export function ScrollStagesOverlay() {
     scrollStore.setSeal(seal);
   };
 
-  const bases: { id: BaseDistillate; name: string; subtitle: string; color: string; notes: string; profile: string }[] = [
+  // 1. Factual 320mL Base Distillates (64% of 500mL)
+  const bases: { id: BaseDistillate; name: string; subtitle: string; color: string; notes: string; vol: string }[] = [
     {
       id: 'yuzu',
-      name: 'Charred Yuzu & Bergamot',
-      subtitle: 'Mountain citrus, charred rind & wild bergamot bloom',
-      color: '#E68A19',
-      notes: 'Bright golden amber · Vibrating citrus top-notes · Dry mineral finish',
-      profile: 'Uplifting',
+      name: 'Japanese Yuzu & Bitter Chinotto',
+      subtitle: 'Cold-distilled Tokushima yuzu peel, charred bergamot, chinotto leaf',
+      color: '#D97706',
+      notes: 'Golden Amber · High monoterpenes · Dry mineral finish',
+      vol: '320mL (64%)',
     },
     {
       id: 'blood_orange',
-      name: 'Smoked Blood Orange & Fig',
-      subtitle: 'Torched Sicilian citrus, black mission fig & gentle gentian root',
-      color: '#A81D24',
-      notes: 'Smoked ruby · Rich bittersweet aperitif body · Velvet finish',
-      profile: 'Contemplative',
+      name: 'Smoked Sicilian Orange & Gentian',
+      subtitle: 'Torched Moro orange rind, sun-dried mission fig, alpine gentian root',
+      color: '#991B1B',
+      notes: 'Smoked Ruby · Amaro bitterness · Velvety mouthfeel',
+      vol: '320mL (64%)',
     },
     {
       id: 'juniper',
-      name: 'Wild Juniper & Alpine Pine',
-      subtitle: 'Sub-zero vapor-distilled alpine needles & cracked green juniper',
+      name: 'Wild Alpine Juniper & Silver Fir',
+      subtitle: 'Sub-zero vacuum-extracted juniper cones, silver fir, green coriander',
       color: '#065F46',
-      notes: 'Luminous emerald · Resinous cedar clarity · Crisp mountain rain',
-      profile: 'Grounding',
+      notes: 'Forest Emerald · Resinous cedar · Crisp mountain rain',
+      vol: '320mL (64%)',
     },
   ];
 
+  // 2. Factual 80mL Bioactive Nootropics (16% of 500mL)
   const nootropics: { id: NootropicStack; name: string; dose: string; desc: string; roman: string }[] = [
     {
       id: 'alpha',
       roman: 'I',
-      name: 'Alpha-Wave Serenity',
-      dose: '500mg Lion\'s Mane · 200mg L-Theanine',
-      desc: 'Sustained cognitive clarity and calm alpha-wave velocity with zero nervous caffeine tension or midday crash.',
+      name: 'Alpha-Wave Cognitive Flow',
+      dose: '600mg Lion\'s Mane (10:1 Dual Extract) · 250mg L-Theanine',
+      desc: 'Stimulates neuro-trophic synthesis and calm alpha brainwave velocity without caffeine tension.',
     },
     {
       id: 'social',
       roman: 'II',
-      name: 'Social Euphoria',
-      dose: '350mg Damiana Leaf · Himalayan Schisandra',
-      desc: 'Adaptogenic mood lift, sensory expansion, and gentle conversational ease wrapped in warm peppery botanicals.',
+      name: 'Sensory Euphoria & Social Uplift',
+      dose: '400mg Mexican Damiana · 250mg Himalayan Schisandra Berry',
+      desc: 'Promotes sensory warmth, mild dopamine tone, and effortless conversational engagement.',
     },
     {
-      id: 'euphoria',
+      id: 'restoration',
       roman: 'III',
-      name: 'Nocturnal Restoration',
-      dose: '300mg KSM-66 Ashwagandha · Magnesium L-Threonate',
-      desc: 'Deep cellular recovery, physical unwinding, and parasympathetic nervous system down-regulation for restorative rest.',
+      name: 'Parasympathetic Restoration',
+      dose: '350mg KSM-66® Ashwagandha · 150mg Magnesium L-Threonate',
+      desc: 'Down-regulates evening cortisol, physical tension release, and restorative cellular recovery.',
+    },
+  ];
+
+  // 3. Factual 60mL Botanical Modifiers (12% of 500mL)
+  const modifiers: { id: BotanicalModifier; name: string; botanical: string; vol: string }[] = [
+    {
+      id: 'rosemary',
+      name: 'Charred Rosemary & Cardamom',
+      botanical: 'Steam-distilled Spanish rosemary hydrosol & green cardamom spice',
+      vol: '60mL (12%)',
+    },
+    {
+      id: 'vetiver',
+      name: 'Smoked Vetiver & Fig Leaf',
+      botanical: 'Low-temperature Haitian vetiver root & lactonic fig leaf cordial',
+      vol: '60mL (12%)',
+    },
+    {
+      id: 'shiso',
+      name: 'Herbaceous Shiso & Mountain Sage',
+      botanical: 'Sub-zero purple shiso cold-press & Dalmatian mountain sage',
+      vol: '60mL (12%)',
     },
   ];
 
   const seals: { id: SealColor; name: string; hex: string; desc: string }[] = [
-    { id: 'gold', name: 'Champagne Brass', hex: '#C59B27', desc: 'Hand-burnished gold leaf medallion' },
-    { id: 'noir', name: 'Raw Gunmetal', hex: '#2A2825', desc: 'CNC-machined industrial carbon black' },
-    { id: 'copper', name: 'Rose Copper', hex: '#B3542E', desc: 'Apothecary fire-annealed copper foil' },
+    { id: 'brass', name: 'Champagne Brass', hex: '#C59B27', desc: 'Hand-burnished brass medallion' },
+    { id: 'noir', name: 'Obsidian Carbon', hex: '#22201D', desc: 'CNC-machined blackened titanium' },
+    { id: 'copper', name: 'Rose Copper', hex: '#B3542E', desc: 'Fire-annealed copper foil' },
   ];
 
   const stageTargets = [
     { num: 1, label: 'Genesis', p: 0.0 },
     { num: 2, label: 'Distillate', p: 0.24 },
     { num: 3, label: 'Infusion', p: 0.45 },
-    { num: 4, label: 'Chill', p: 0.65 },
-    { num: 5, label: 'Engrave', p: 0.80 },
-    { num: 6, label: 'Dispatch', p: 0.94 },
+    { num: 4, label: 'Architecture', p: 0.65 },
+    { num: 5, label: 'Engraving', p: 0.80 },
+    { num: 6, label: 'Allocation', p: 0.94 },
   ];
 
   const handleJumpToStage = (targetProgress: number) => {
@@ -166,17 +191,17 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 1: THE EMPTY VESSEL (MINIMALIST GENESIS) (0% - 16%) */}
+      {/* STAGE 1: GENESIS (RADICAL LUXURY MINIMALISM) (0% - 16%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 py-16 flex flex-col justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 py-16 flex flex-col justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           activeStage === 1 ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 max-w-[1440px] w-full mx-auto pb-4">
           <div className="max-w-lg">
             <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.24em] uppercase block mb-2.5">
-              BOROSILICATE FLINT · 500ML
+              BOROSILICATE FLINT · 500ML BESPOKE
             </span>
             <h1 className="font-sans font-light text-3xl sm:text-5xl text-[#171614] leading-[1.08] tracking-[-0.03em]">
               A pure vessel,<br />
@@ -204,53 +229,53 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 2: BASE DISTILLATE SELECTION & LIVE POUR (16% - 36%) */}
+      {/* STAGE 2: BASE DISTILLATE (320mL / 64%) (16% - 36%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           activeStage === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="w-full max-w-[420px] pointer-events-auto bg-white/80 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
             <Droplet size={11} className="text-[#B86B27]" />
-            <span>STAGE 02 // DISTILLATION BASE</span>
+            <span>STEP 01 // FOUNDATION DISTILLATION (320ML)</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
-            Pour Your Base<span className="text-[#B86B27]">.</span>
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Primary Distillate<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3.5">
-            Select a cold-vacuum fractional distillate. The liquid stream pours directly into the vessel. Switching bases empties and repours the bottle.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
+            The foundation aromatic carrier extracted via low-temperature rotary vacuum. Fills 320mL of the 500mL vessel.
           </p>
 
-          {/* Live Pour Status Feedback */}
-          <div className="mb-4 px-3 py-1.5 rounded-full bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
+          {/* Factual Volume Telemetry Bar */}
+          <div className="mb-3.5 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
             <div className="flex items-center space-x-2">
-              <span className={`w-2 h-2 rounded-full ${pourState.isPouring ? 'bg-[#B86B27] animate-ping' : pourState.fillLevel > 0.8 ? 'bg-[#065F46]' : 'bg-[#171614]/30'}`} />
+              <span className={`w-2 h-2 rounded-full ${pourState.isPouring ? 'bg-[#B86B27] animate-ping' : pourState.fillLevel >= 0.64 ? 'bg-[#065F46]' : 'bg-[#171614]/30'}`} />
               <span className="text-[#171614]/80 text-[11px]">{pourState.statusText}</span>
             </div>
             <span className="text-[#B86B27] text-[11px] tracking-wider font-medium">
-              {Math.round(pourState.fillLevel * 500)}mL / 500mL
+              {pourState.currentVolumeMl} / 500mL
             </span>
           </div>
 
-          {/* Base Selection Swatches */}
-          <div className="space-y-2.5">
+          {/* Factual 320mL Base Distillates */}
+          <div className="space-y-2">
             {bases.map((base) => {
               const isSelected = formula.base === base.id;
               return (
                 <button
                   key={base.id}
                   onClick={() => handleSelectBase(base.id)}
-                  className={`w-full text-left p-3.5 rounded-xl transition-all duration-300 relative group cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-xl transition-all duration-300 relative group cursor-pointer ${
                     isSelected
                       ? 'bg-white shadow-md border-2 border-[#B86B27]'
                       : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/25'
                   }`}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
+                    <div className="flex items-start space-x-2.5">
                       <span
                         className="w-3.5 h-3.5 rounded-full mt-0.5 shadow-sm transition-transform group-hover:scale-110 flex-shrink-0"
                         style={{ backgroundColor: base.color }}
@@ -260,8 +285,8 @@ export function ScrollStagesOverlay() {
                           <h3 className="font-sans font-medium text-xs text-[#171614]">
                             {base.name}
                           </h3>
-                          <span className="text-[9px] font-mono text-[#B86B27] px-1.5 py-0.5 rounded bg-[#B86B27]/10">
-                            {base.profile}
+                          <span className="text-[9px] font-mono text-[#B86B27] px-1 py-0.5 rounded bg-[#B86B27]/10">
+                            {base.vol}
                           </span>
                         </div>
                         <p className="font-sans text-[11px] text-[#6E6961] mt-0.5 font-light leading-snug">
@@ -270,11 +295,11 @@ export function ScrollStagesOverlay() {
                       </div>
                     </div>
 
-                    <div className="text-right flex-shrink-0 pl-2">
+                    <div className="text-right flex-shrink-0 pl-1.5">
                       {isSelected ? (
                         <div className="flex items-center space-x-1 text-[#B86B27] font-mono text-[9px]">
                           <Check size={11} strokeWidth={2.5} />
-                          <span>ACTIVE</span>
+                          <span>320ML</span>
                         </div>
                       ) : (
                         <span className="text-[#171614]/30 font-mono text-[9px] group-hover:text-[#171614]/60">
@@ -291,34 +316,44 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 3: NOOTROPIC INFUSION & EXPLODED FORMULATION (36% - 56%) */}
+      {/* STAGE 3: BIOACTIVE NOOTROPIC (+80mL = 400mL) (36% - 56%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           activeStage === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="w-full max-w-[420px] pointer-events-auto bg-white/80 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
             <Layers size={11} className="text-[#B86B27]" />
-            <span>STAGE 03 // ADAPTOGENIC INFUSION</span>
+            <span>STEP 02 // BIOACTIVE NOOTROPIC (+80ML)</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
-            Infuse Neuro-Actives<span className="text-[#B86B27]">.</span>
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Infuse Clinical Actives<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
-            The vessel elevates into an exploded formulation view. Select your bioactive adaptogen stack.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
+            Dual-extract adaptogens. Bottle elevates into exploded view; volume rises to 400mL.
           </p>
 
-          <div className="space-y-2.5">
+          {/* Volume Bar */}
+          <div className="mb-3.5 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
+            <span className="text-[#171614]/80 text-[11px]">
+              {formula.nootropic ? '80mL adaptogen infused' : 'Select bioactive stack (+80mL)'}
+            </span>
+            <span className="text-[#B86B27] text-[11px] tracking-wider font-medium">
+              {pourState.currentVolumeMl} / 500mL
+            </span>
+          </div>
+
+          <div className="space-y-2">
             {nootropics.map((item) => {
               const isSelected = formula.nootropic === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectNootropic(item.id)}
-                  className={`w-full text-left p-3.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                     isSelected
                       ? 'bg-white shadow-md border-2 border-[#B86B27]'
                       : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/25'
@@ -342,7 +377,7 @@ export function ScrollStagesOverlay() {
                       </p>
                     </div>
 
-                    <div className="flex-shrink-0 pl-2">
+                    <div className="flex-shrink-0 pl-1.5">
                       {isSelected ? (
                         <div className="w-4 h-4 rounded-full bg-[#B86B27] text-white flex items-center justify-center">
                           <Check size={10} strokeWidth={2.5} />
@@ -360,69 +395,95 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 4: CHILL & SERVE ARCHITECTURE (56% - 74%) */}
+      {/* STAGE 4: MODIFIER CORDIAL & CHILL (+100mL = 500mL) (56% - 74%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           activeStage === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="w-full max-w-[420px] pointer-events-auto bg-white/80 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
-            <Snowflake size={11} className="text-[#B86B27]" />
-            <span>STAGE 04 // SERVE ARCHITECTURE</span>
+        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
+            <Sparkles size={11} className="text-[#B86B27]" />
+            <span>STEP 03 // MODIFIER CORDIAL & CHILL (100ML)</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
-            Temperature & Chill<span className="text-[#B86B27]">.</span>
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Architecture & Finish<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
-            Temperature transforms aroma volatilization. Choose your drinking ceremony to trigger surface condensation beads or ambient transparency.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
+            Binds the aromatics and finishes the 500mL vessel capacity.
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          {/* Volume Bar */}
+          <div className="mb-3 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
+            <span className="text-[#171614]/80 text-[11px]">
+              Final blend: {pourState.currentVolumeMl}mL / 500mL
+            </span>
+            <span className="text-[#B86B27] text-[11px] tracking-wider font-medium">
+              100% CAPACITY
+            </span>
+          </div>
+
+          {/* 60mL Botanical Modifier Cordials */}
+          <div className="space-y-1.5 mb-3.5">
+            <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest">
+              Select Aromatic Modifier (+60mL)
+            </label>
+            {modifiers.map((mod) => {
+              const isSelected = formula.modifier === mod.id;
+              return (
+                <button
+                  key={mod.id}
+                  onClick={() => handleSelectModifier(mod.id)}
+                  className={`w-full text-left p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                    isSelected
+                      ? 'bg-white shadow-sm border-2 border-[#B86B27]'
+                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-sans font-medium text-xs text-[#171614]">{mod.name}</h4>
+                      <p className="font-sans text-[10px] text-[#6E6961]">{mod.botanical}</p>
+                    </div>
+                    <span className="font-mono text-[9px] text-[#B86B27] pl-2">{mod.vol}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 40mL Chill Architecture */}
+          <div className="grid grid-cols-2 gap-2.5">
             <button
-              onClick={() => handleSelectChill('ice')}
-              className={`p-3.5 rounded-xl text-left transition-all duration-300 cursor-pointer ${
-                formula.chill === 'ice'
+              onClick={() => handleSelectChill('glacial')}
+              className={`p-3 rounded-xl text-left transition-all duration-300 cursor-pointer ${
+                formula.chill === 'glacial'
                   ? 'bg-white shadow-md border-2 border-[#B86B27]'
                   : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-6 h-6 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-2.5">
-                <Snowflake size={13} />
+              <div className="w-5 h-5 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-1.5">
+                <Snowflake size={12} />
               </div>
-              <h3 className="font-sans font-medium text-xs text-[#171614]">
-                Glacial Pour
-              </h3>
-              <div className="font-mono text-[9px] text-[#B86B27] mt-0.5">
-                4°C · OVER ARTISANAL ICE
-              </div>
-              <p className="font-sans text-[10px] text-[#6E6961] mt-1.5 font-light leading-snug">
-                Hand-cut ice block clinks into flask. Condensation beads form on glass.
-              </p>
+              <h4 className="font-sans font-medium text-xs text-[#171614]">Glacial Serve</h4>
+              <p className="font-mono text-[9px] text-[#B86B27] mt-0.5">4°C · Over Artisanal Ice</p>
             </button>
 
             <button
-              onClick={() => handleSelectChill('neat')}
-              className={`p-3.5 rounded-xl text-left transition-all duration-300 cursor-pointer ${
-                formula.chill === 'neat'
+              onClick={() => handleSelectChill('cellar')}
+              className={`p-3 rounded-xl text-left transition-all duration-300 cursor-pointer ${
+                formula.chill === 'cellar'
                   ? 'bg-white shadow-md border-2 border-[#B86B27]'
                   : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-6 h-6 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-2.5">
-                <Flame size={13} />
+              <div className="w-5 h-5 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-1.5">
+                <Flame size={12} />
               </div>
-              <h3 className="font-sans font-medium text-xs text-[#171614]">
-                Cellar Pour
-              </h3>
-              <div className="font-mono text-[9px] text-[#B86B27] mt-0.5">
-                18°C · UNCUT & NEAT
-              </div>
-              <p className="font-sans text-[10px] text-[#6E6961] mt-1.5 font-light leading-snug">
-                Pristine optical clarity. Allows volatile botanical florals to open without dilution.
-              </p>
+              <h4 className="font-sans font-medium text-xs text-[#171614]">Cellar Serve</h4>
+              <p className="font-mono text-[9px] text-[#B86B27] mt-0.5">18°C · Uncut & Neat</p>
             </button>
           </div>
         </div>
@@ -432,26 +493,26 @@ export function ScrollStagesOverlay() {
       {/* STAGE 5: BESPOKE LABEL PERSONALIZATION (74% - 88%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           activeStage === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="w-full max-w-[420px] pointer-events-auto bg-white/85 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
             <Award size={11} className="text-[#B86B27]" />
-            <span>STAGE 05 // BESPOKE ENGRAVING</span>
+            <span>STEP 04 // LASER-ENGRAVED PERSONALIZATION</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
-            Laser-Engrave The 3D Label<span className="text-[#B86B27]">.</span>
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Engrave The 3D Label<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3.5">
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
             Type your private reserve title and monogram. The 3D label on the bottle engraves in real time.
           </p>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div>
-              <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
+              <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
                 Custom Edition Title
               </label>
               <input
@@ -464,9 +525,9 @@ export function ScrollStagesOverlay() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
                   Monogram Initials
                 </label>
                 <input
@@ -480,7 +541,7 @@ export function ScrollStagesOverlay() {
               </div>
 
               <div>
-                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
                   Medallion Foil
                 </label>
                 <div className="flex space-x-2 pt-0.5">
@@ -499,7 +560,7 @@ export function ScrollStagesOverlay() {
               </div>
             </div>
 
-            <div className="pt-1.5 text-[10px] font-mono text-[#B86B27] flex items-center space-x-1.5">
+            <div className="pt-1 text-[10px] font-mono text-[#B86B27] flex items-center space-x-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
               <span>3D TEXTURE EMBOSSED IN REAL TIME</span>
             </div>
@@ -508,39 +569,43 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 6: DISPATCH VAULT & ADDRESS FORM (88% - 100%) */}
+      {/* STAGE 6: DISPATCH VAULT & ALLOCATION (88% - 100%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           activeStage === 6 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="w-full max-w-[420px] pointer-events-auto bg-white/85 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
             <ShieldCheck size={11} className="text-[#B86B27]" />
-            <span>STAGE 06 // VAULT ALLOCATION</span>
+            <span>STEP 05 // VAULT ALLOCATION (500ML)</span>
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
             Dispatch Your Batch<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-2.5">
             Nitrogen-purged packaging, signed certificate, and direct courier dispatch.
           </p>
 
-          {/* Formulation Assay Receipt */}
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-3 text-xs font-mono space-y-1">
+          {/* Factual Recipe Breakdown Receipt */}
+          <div className="p-2.5 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-2.5 text-[11px] font-mono space-y-1">
             <div className="flex justify-between">
-              <span className="text-[#171614]/50">DISTILLATE:</span>
+              <span className="text-[#171614]/50">DISTILLATE (320mL):</span>
               <span className="text-[#171614] font-medium uppercase">{formula.base || 'YUZU'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#171614]/50">ADAPTOGEN:</span>
-              <span className="text-[#171614] font-medium uppercase">{formula.nootropic}</span>
+              <span className="text-[#171614]/50">NOOTROPIC (80mL):</span>
+              <span className="text-[#171614] font-medium uppercase">{formula.nootropic || 'ALPHA'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#171614]/50">ENGRAVING:</span>
-              <span className="text-[#B86B27] font-medium">{formula.customName} [{formula.engravedInitials}]</span>
+              <span className="text-[#171614]/50">MODIFIER (60mL):</span>
+              <span className="text-[#171614] font-medium uppercase">{formula.modifier || 'ROSEMARY'}</span>
+            </div>
+            <div className="flex justify-between border-t border-[#171614]/10 pt-1">
+              <span className="text-[#171614]/60">TOTAL VOLUME:</span>
+              <span className="text-[#B86B27] font-semibold">500mL // 0.0% ABV</span>
             </div>
           </div>
 
@@ -566,10 +631,10 @@ export function ScrollStagesOverlay() {
                 audioSystem.playClick(1200);
                 scrollStore.confirmOrder();
               }}
-              className="space-y-2.5"
+              className="space-y-2"
             >
               <div>
-                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
                   Recipient Name
                 </label>
                 <input
@@ -583,7 +648,7 @@ export function ScrollStagesOverlay() {
               </div>
 
               <div>
-                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
                   Delivery Destination
                 </label>
                 <input
@@ -598,7 +663,7 @@ export function ScrollStagesOverlay() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
                     City & Postal
                   </label>
                   <input
@@ -611,7 +676,7 @@ export function ScrollStagesOverlay() {
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
                     Email
                   </label>
                   <input
@@ -627,7 +692,7 @@ export function ScrollStagesOverlay() {
 
               <button
                 type="submit"
-                className="w-full mt-2 py-2.5 rounded-xl bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] font-sans text-xs font-medium tracking-tight flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                className="w-full mt-1.5 py-2.5 rounded-xl bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] font-sans text-xs font-medium tracking-tight flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
               >
                 <span>Authorize & Dispatch Allocation</span>
                 <ArrowRight size={12} />
