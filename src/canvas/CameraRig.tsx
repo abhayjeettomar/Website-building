@@ -24,35 +24,35 @@ export function CameraRig() {
     let lz = 0;
 
     // --- Continuous Smooth Camera Spline ---
-    if (p < 0.18) {
+    if (p < 0.16) {
       // Stage 1: Genesis (Center hero, breathing float)
-      const t = p / 0.18;
+      const t = p / 0.16;
       cz = THREE.MathUtils.lerp(isMobile ? 6.5 : 5.4, isMobile ? 6.2 : 5.2, t);
       cx = 0;
       lx = 0;
-    } else if (p < 0.38) {
+    } else if (p < 0.36) {
       // Stage 2: Base Distillate Pour (Bottle on right, camera offsets to frame left card)
-      const t = (p - 0.18) / 0.20;
+      const t = (p - 0.16) / 0.20;
       cz = THREE.MathUtils.lerp(isMobile ? 6.2 : 5.2, isMobile ? 6.0 : 5.1, t);
       cx = isMobile ? 0 : THREE.MathUtils.lerp(0.0, -0.26, t);
       lx = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.15, t);
-    } else if (p < 0.58) {
+    } else if (p < 0.56) {
       // Stage 3: Exploded Formulation (Bottle on left, camera offsets to frame right card)
-      const t = (p - 0.38) / 0.20;
+      const t = (p - 0.36) / 0.20;
       cz = THREE.MathUtils.lerp(isMobile ? 6.0 : 5.1, isMobile ? 6.6 : 5.5, t);
       cx = isMobile ? 0 : THREE.MathUtils.lerp(-0.26, 0.26, t);
       lx = isMobile ? 0 : THREE.MathUtils.lerp(0.15, -0.15, t);
       ly = THREE.MathUtils.lerp(-0.06, 0.02, t);
-    } else if (p < 0.76) {
+    } else if (p < 0.74) {
       // Stage 4: Chill Architecture (Bottle on left, camera frames right modifier cards)
-      const t = (p - 0.58) / 0.18;
+      const t = (p - 0.56) / 0.18;
       cz = THREE.MathUtils.lerp(isMobile ? 6.6 : 5.5, isMobile ? 6.2 : 5.2, t);
       cx = isMobile ? 0 : THREE.MathUtils.lerp(0.26, 0.24, t);
       lx = isMobile ? 0 : THREE.MathUtils.lerp(-0.15, -0.14, t);
       ly = THREE.MathUtils.lerp(0.02, -0.04, t);
     } else if (p < 0.88) {
       // Stage 5: Bespoke Engraving (Bottle on right, camera offsets to frame left card)
-      const t = (p - 0.76) / 0.12;
+      const t = (p - 0.74) / 0.14;
       cz = THREE.MathUtils.lerp(isMobile ? 6.2 : 5.2, isMobile ? 5.9 : 4.9, t);
       cx = isMobile ? 0 : THREE.MathUtils.lerp(0.24, -0.25, t);
       lx = isMobile ? 0 : THREE.MathUtils.lerp(-0.14, 0.15, t);

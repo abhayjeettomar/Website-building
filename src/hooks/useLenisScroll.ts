@@ -12,14 +12,14 @@ export function useLenisScroll() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    // Lenis v1.1.x: autoRaf: false prevents conflicting RAF loops with GSAP ticker
+    // Lenis v1.1.x: snappy, responsive smooth scroll with zero dead-lag
     const lenis = new Lenis({
       autoRaf: false,
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 0.85,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -8 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.2,
+      touchMultiplier: 1.6,
     });
 
     lenisRef.current = lenis;

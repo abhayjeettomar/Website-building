@@ -93,26 +93,37 @@ export function BottleAssembly() {
     return new THREE.LatheGeometry(points, 64);
   }, []);
 
-  // --- 4. Single Unified Liquid Geometry (Water-tight, Zero Z-Fighting) ---
+  // --- 4. Precision Inner-Cavity Liquid Geometry (Zero Punt Clipping) ---
   const liquidGeometry = useMemo(() => {
-    const geom = new THREE.CylinderGeometry(0.410, 0.410, 1.0, 48, 1, false);
-    geom.translate(0, 0.5, 0); // Anchor pivot at base
-    return geom;
+    const pts: THREE.Vector2[] = [];
+    // Dome apex at center (0.01 above inner glass punt dome at y = -1.12)
+    pts.push(new THREE.Vector2(0.0, -1.11));
+    pts.push(new THREE.Vector2(0.12, -1.125));
+    pts.push(new THREE.Vector2(0.20, -1.15));
+    pts.push(new THREE.Vector2(0.32, -1.175));
+    pts.push(new THREE.Vector2(0.405, -1.19));   // Inner heel floor
+    pts.push(new THREE.Vector2(0.420, -1.11));   // Heel transition
+    pts.push(new THREE.Vector2(0.420, 0.46));    // Up cylinder wall to maximum fill
+    pts.push(new THREE.Vector2(0.0, 0.46));      // Top disc
+    return new THREE.LatheGeometry(pts, 48);
   }, []);
 
-  // Meniscus circular fluid surface disc (snug r=0.408, capillary tension)
+  // Meniscus circular fluid surface disc (snug r=0.418, capillary tension)
   const meniscusGeometry = useMemo(() => {
-    const geom = new THREE.RingGeometry(0.0, 0.408, 36, 6);
+    const geom = new THREE.RingGeometry(0.0, 0.418, 36, 6);
     const pos = geom.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const vx = pos.getX(i);
       const vy = pos.getY(i);
-      const r = Math.sqrt(vx * vx + vy * vy) / 0.408;
+      const r = Math.sqrt(vx * vx + vy * vy) / 0.418;
       pos.setZ(i, Math.pow(r, 4) * 0.014);
     }
     geom.computeVertexNormals();
     return geom;
   }, []);
+
+  // Dynamic Three.js local clipping plane for the rising liquid column
+  const liquidClipPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), -1.11), []);
 
   // Fluid impact ripple ring
   const impactGeometry = useMemo(() => new THREE.RingGeometry(0.02, 0.20, 36), []);
@@ -301,51 +312,46 @@ export function BottleAssembly() {
     const floatY = Math.sin(time * 2.2) * 0.045;
     const floatRoll = Math.cos(time * 1.8) * 0.030;
 
-    if (p < 0.18) {
-      // Stage 1: Genesis (Center hero, breathing levitation, subtle facet gleam)
-      const t = p / 0.18;
-      const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.25, smoothT);
-      bY = THREE.MathUtils.lerp(-0.18, -0.14, smoothT) + floatY;
-      bZ = Math.sin(t * Math.PI) * 0.28;
-      bRotY = THREE.MathUtils.lerp(0.15, 0.45, smoothT) + Math.sin(time * 0.6) * 0.08;
-      bRotZ = Math.sin(t * Math.PI) * -0.06 + floatRoll;
-    } else if (p < 0.38) {
+    if (p < 0.16) {
+      // Stage 1: Genesis (Center hero, breathing levitation, continuous facet gleam)
+      const t = p / 0.16;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.30, t);
+      bY = THREE.MathUtils.lerp(-0.18, -0.14, t) + floatY;
+      bZ = Math.sin(t * Math.PI) * 0.30;
+      bRotY = THREE.MathUtils.lerp(0.15, 0.50, t) + Math.sin(time * 0.6) * 0.08;
+      bRotZ = Math.sin(t * Math.PI) * -0.08 + floatRoll;
+    } else if (p < 0.36) {
       // Stage 2: Base Distillate Pour (Decanter glides to right flank, banking turn, forward arc)
-      const t = (p - 0.18) / 0.20;
-      const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.25, 0.85, smoothT);
+      const t = (p - 0.16) / 0.20;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.30, 0.85, t);
       bY = -0.13 + floatY;
-      bZ = 0.15 + Math.sin(t * Math.PI) * 0.35;
-      bRotY = THREE.MathUtils.lerp(0.45, 0.95, smoothT);
+      bZ = 0.15 + Math.sin(t * Math.PI) * 0.38;
+      bRotY = THREE.MathUtils.lerp(0.50, 0.95, t);
       bRotZ = Math.sin(t * Math.PI) * -0.16 + floatRoll;
-    } else if (p < 0.58) {
+    } else if (p < 0.56) {
       // Stage 3: Bioactive Infusion (Majestic crossing arc from right to left, close to camera)
-      const t = (p - 0.38) / 0.20;
-      const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.85, -0.82, smoothT);
+      const t = (p - 0.36) / 0.20;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.85, -0.82, t);
       bY = -0.12 + floatY;
-      bZ = Math.sin(t * Math.PI) * 0.48; // Dramatic forward camera sweep
-      bRotY = THREE.MathUtils.lerp(0.95, 1.85, smoothT);
+      bZ = Math.sin(t * Math.PI) * 0.48;
+      bRotY = THREE.MathUtils.lerp(0.95, 1.85, t);
       bRotZ = Math.sin(t * Math.PI) * 0.18 + floatRoll;
-    } else if (p < 0.76) {
+    } else if (p < 0.74) {
       // Stage 4: Architecture & Chill (Left flank dynamic helical swing, ice & botanicals)
-      const t = (p - 0.58) / 0.18;
-      const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.82, -0.70, Math.sin(t * Math.PI));
+      const t = (p - 0.56) / 0.18;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.82, -0.70, t);
       bY = -0.12 + floatY;
       bZ = 0.12 + Math.sin(t * Math.PI) * 0.30;
-      bRotY = THREE.MathUtils.lerp(1.85, 2.50, smoothT) + Math.sin(time * 0.7) * 0.08;
+      bRotY = THREE.MathUtils.lerp(1.85, 2.50, t) + Math.sin(time * 0.7) * 0.08;
       bRotX = Math.sin(time * 0.8) * 0.06;
       bRotZ = floatRoll;
     } else if (p < 0.88) {
       // Stage 5: Bespoke Suite & Engraving (Sweeps from left to right, turns frontally to camera)
-      const t = (p - 0.76) / 0.12;
-      const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.70, 0.82, smoothT);
+      const t = (p - 0.74) / 0.14;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.70, 0.82, t);
       bY = -0.12 + floatY;
       bZ = Math.sin(t * Math.PI) * 0.36;
-      bRotY = THREE.MathUtils.lerp(2.50, 0.05, smoothT); // Direct frontal presentation for monogram & seal
+      bRotY = THREE.MathUtils.lerp(2.50, 0.05, t); // Direct frontal presentation for monogram & seal
       bRotZ = Math.sin(t * Math.PI) * -0.10 + floatRoll;
     } else {
       // Stage 6: Allocation Vault (Center-left showroom presentation with continuous turntable rotation)
@@ -388,27 +394,27 @@ export function BottleAssembly() {
       pour.isDraining
     );
 
-    // Dynamic fluid height: base floor at -1.20, 500mL reaches exactly 0.38
+    // Dynamic fluid height: base floor at -1.11, 500mL reaches exactly 0.38
     const fLevel = pour.fillLevel;
-    const maxFluidHeight = 1.58;
+    const maxFluidHeight = 1.49;
     const currentHeight = Math.max(0.001, fLevel * maxFluidHeight);
-    const surfaceY = -1.20 + currentHeight;
+    const surfaceY = -1.11 + currentHeight;
 
-    // --- 4. Single Unified Liquid Body (Zero Z-Fighting) ---
+    // Update dynamic clipping plane constant to match surfaceY exactly
+    liquidClipPlane.constant = surfaceY;
+
+    // --- 4. Single Unified Liquid Body (Zero Punt Clipping) ---
     if (liquidBodyRef.current) {
       const showLiquid = fLevel > 0.005;
       liquidBodyRef.current.visible = showLiquid;
       if (showLiquid) {
-        liquidBodyRef.current.scale.set(1, currentHeight, 1);
-        liquidBodyRef.current.position.set(0, -1.20, 0);
-
+        liquidBodyRef.current.position.set(0, 0, 0); // Anchored at origin, clipped by plane!
         if (pour.isDraining) {
           liquidBodyRef.current.rotation.y += delta * 8.5;
         } else {
           liquidBodyRef.current.rotation.y = 0;
         }
 
-        // Keep liquid column upright within inner bore - slosh tilts meniscus!
         liquidBodyRef.current.rotation.x = 0;
         liquidBodyRef.current.rotation.z = 0;
       }
@@ -628,14 +634,14 @@ export function BottleAssembly() {
       }
     }
 
-    // --- 9. Stopper & Cork Unsealing (Lifts out of way during pour) ---
+    // --- 9. Stopper & Cork Unsealing (Vertical lift during pour or exploded view) ---
     let explodeAmount = 0;
-    if (p >= 0.38 && p < 0.48) {
-      explodeAmount = (p - 0.38) / 0.10;
-    } else if (p >= 0.48 && p < 0.54) {
+    if (p >= 0.36 && p < 0.44) {
+      explodeAmount = (p - 0.36) / 0.08;
+    } else if (p >= 0.44 && p < 0.50) {
       explodeAmount = 1.0;
-    } else if (p >= 0.54 && p < 0.60) {
-      explodeAmount = 1.0 - (p - 0.54) / 0.06;
+    } else if (p >= 0.50 && p < 0.56) {
+      explodeAmount = 1.0 - (p - 0.50) / 0.06;
     }
 
     let capTargetPos = new THREE.Vector3(0, 0, 0);
@@ -647,10 +653,10 @@ export function BottleAssembly() {
       capTargetPos.set(0, explodeAmount * 0.65, 0);
       corkTargetPos.set(0, 1.22 + explodeAmount * 0.32, 0);
     } else if (isPouring) {
-      // Stopper and cork lift completely off bottle to the side so neck aperture is 100% open!
-      capTargetPos.set(0.55, 0.45, 0);
-      corkTargetPos.set(0.55, 1.62, 0);
-      capTargetRotZ = 0.22;
+      // Stopper lifts vertically above decanter neck aperture cleanly
+      capTargetPos.set(0, 0.45, 0);
+      corkTargetPos.set(0, 1.62, 0);
+      capTargetRotZ = 0;
     }
 
     if (capGroupRef.current) {
@@ -726,25 +732,25 @@ export function BottleAssembly() {
       let glassClearcoatRough = 0.015;
 
       if (tint === 'obsidian') {
-        glassColor = '#1F1E1D';
-        glassAtten = new THREE.Color('#0D0C0B');
-        glassAttenDist = 0.55;
-        glassTrans = 0.65;
-        glassRoughness = 0.04;
+        glassColor = '#E4E2DF';
+        glassAtten = new THREE.Color('#383531');
+        glassAttenDist = 1.2;
+        glassTrans = 0.78;
+        glassRoughness = 0.02;
       } else if (tint === 'amber') {
-        glassColor = '#D97706';
-        glassAtten = new THREE.Color('#92400E');
-        glassAttenDist = 0.75;
-        glassTrans = 0.76;
-        glassRoughness = 0.025;
+        glassColor = '#FFF5E6';
+        glassAtten = new THREE.Color('#B45309');
+        glassAttenDist = 1.4;
+        glassTrans = 0.82;
+        glassRoughness = 0.018;
       } else if (tint === 'frosted') {
         glassColor = '#FAF8F5';
-        glassAtten = new THREE.Color('#E8E4DC');
-        glassAttenDist = 1.8;
-        glassTrans = 0.86;
-        glassRoughness = 0.42;
-        glassClearcoat = 0.15;
-        glassClearcoatRough = 0.40;
+        glassAtten = new THREE.Color('#FAF5EE');
+        glassAttenDist = 1.6;
+        glassTrans = 0.80;
+        glassRoughness = 0.06;
+        glassClearcoat = 0.6;
+        glassClearcoatRough = 0.04;
       }
 
       if (formula.chill === 'glacial' && p >= 0.56) {
@@ -954,6 +960,8 @@ export function BottleAssembly() {
           roughness={0.08}
           metalness={0.02}
           transparent={false}
+          clippingPlanes={[liquidClipPlane]}
+          clipShadows={true}
         />
       </mesh>
 

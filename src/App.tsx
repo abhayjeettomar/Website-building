@@ -27,13 +27,13 @@ export function App() {
         onUpdate: (self) => {
           scrollStore.progress = self.progress;
 
-          // Dispatch discrete stage changes ONLY when crossing boundaries
+          // Dispatch discrete stage changes with seamless boundaries
           let currentStage = 1;
           if (self.progress >= 0.88) currentStage = 6;
-          else if (self.progress >= 0.76) currentStage = 5;
-          else if (self.progress >= 0.58) currentStage = 4;
-          else if (self.progress >= 0.38) currentStage = 3;
-          else if (self.progress >= 0.18) currentStage = 2;
+          else if (self.progress >= 0.74) currentStage = 5;
+          else if (self.progress >= 0.56) currentStage = 4;
+          else if (self.progress >= 0.36) currentStage = 3;
+          else if (self.progress >= 0.16) currentStage = 2;
 
           if (currentStage !== scrollStore.stage) {
             scrollStore.stage = currentStage;
@@ -65,8 +65,8 @@ export function App() {
       {/* Interactive options: Distillate Base -> Nootropic Infusion -> Chill Architecture -> Bespoke Engraving -> Dispatch */}
       <ScrollStagesOverlay />
 
-      {/* 6. Master 750vh Scroll Track (The entire experience is completely scroll-driven) */}
-      <main id="pinned-scroll-container" className="relative w-full h-[750vh] pointer-events-none" />
+      {/* 6. Dynamic 420vh Scroll Track (Responsive, frictionless phase progression) */}
+      <main id="pinned-scroll-container" className="relative w-full h-[420vh] pointer-events-none" />
     </div>
   );
 }
