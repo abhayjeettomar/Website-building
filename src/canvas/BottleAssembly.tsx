@@ -55,16 +55,9 @@ export function BottleAssembly() {
     const unsub = scrollStore.subscribe(() => {
       const f = scrollStore.formula;
       updateLabel(f.customName, f.engravedInitials, f.seal, f.labelPaper, f.batchYear);
-
-      const baseKey = f.base || 'yuzu';
-      const tex = liquidTextures[baseKey] || liquidTextures.yuzu;
-      if (liquidMaterialRef.current && liquidMaterialRef.current.map !== tex) {
-        liquidMaterialRef.current.map = tex;
-        liquidMaterialRef.current.needsUpdate = true;
-      }
     });
     return unsub;
-  }, [updateLabel, liquidTextures]);
+  }, [updateLabel]);
 
   // --- 3. Solid Architectural Decanter Geometry (Outer & Inner Cavity Manifold) ---
   const glassGeometry = useMemo(() => {
@@ -305,74 +298,82 @@ export function BottleAssembly() {
     let bRotZ = 0;
 
     // Fluid floating breathing animation
-    const floatY = Math.sin(time * 1.8) * 0.032;
+    const floatY = Math.sin(time * 2.2) * 0.045;
+    const floatRoll = Math.cos(time * 1.8) * 0.030;
 
-    if (p < 0.16) {
-      // Stage 1: Genesis (Resting on marble slab plinth, slow seductive rotation)
-      const t = p / 0.16;
-      bX = 0;
-      bY = -0.16 + floatY * (1 - t);
-      bZ = 0;
-      bRotY = 0.15 + t * 0.25 + Math.sin(time * 0.5) * 0.08;
-    } else if (p < 0.36) {
-      // Stage 2: Distillate Base (Levitates up, glides to right flank with forward arc)
-      const t = (p - 0.16) / 0.20;
+    if (p < 0.18) {
+      // Stage 1: Genesis (Center hero, breathing levitation, subtle facet gleam)
+      const t = p / 0.18;
       const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.82, smoothT);
-      bY = -0.14 + floatY;
-      bZ = Math.sin(t * Math.PI) * 0.32; // Cinematic forward arc
-      bRotY = THREE.MathUtils.lerp(0.40, 0.85, smoothT);
-      bRotZ = Math.sin(t * Math.PI) * -0.09; // Dynamic banking into curve
-    } else if (p < 0.56) {
-      // Stage 3: Exploded Formulation (Crosses gracefully from right to left flank, banking smoothly)
-      const t = (p - 0.36) / 0.20;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.25, smoothT);
+      bY = THREE.MathUtils.lerp(-0.18, -0.14, smoothT) + floatY;
+      bZ = Math.sin(t * Math.PI) * 0.28;
+      bRotY = THREE.MathUtils.lerp(0.15, 0.45, smoothT) + Math.sin(time * 0.6) * 0.08;
+      bRotZ = Math.sin(t * Math.PI) * -0.06 + floatRoll;
+    } else if (p < 0.38) {
+      // Stage 2: Base Distillate Pour (Decanter glides to right flank, banking turn, forward arc)
+      const t = (p - 0.18) / 0.20;
       const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.82, -0.80, smoothT);
-      bY = -0.15 + floatY;
-      bZ = Math.sin(t * Math.PI) * 0.36; // Big sweeping arc towards viewer
-      bRotY = THREE.MathUtils.lerp(0.85, 1.65, smoothT);
-      bRotZ = Math.sin(t * Math.PI) * 0.11; // Banking into turn
-    } else if (p < 0.74) {
-      // Stage 4: Architecture & Chill (Left flank with floating ice and botanicals)
-      const t = (p - 0.56) / 0.18;
-      bX = isMobile ? 0 : -0.80;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.25, 0.85, smoothT);
       bY = -0.13 + floatY;
-      bZ = 0.08 + Math.sin(time * 0.7) * 0.04;
-      bRotY = 1.65 + t * 0.65;
-      bRotX = Math.sin(time * 0.8) * 0.04;
-    } else if (p < 0.88) {
-      // Stage 5: Bespoke Customization (Glides to right flank, rotates frontally to camera)
-      const t = (p - 0.74) / 0.14;
+      bZ = 0.15 + Math.sin(t * Math.PI) * 0.35;
+      bRotY = THREE.MathUtils.lerp(0.45, 0.95, smoothT);
+      bRotZ = Math.sin(t * Math.PI) * -0.16 + floatRoll;
+    } else if (p < 0.58) {
+      // Stage 3: Bioactive Infusion (Majestic crossing arc from right to left, close to camera)
+      const t = (p - 0.38) / 0.20;
       const smoothT = Math.sin(t * Math.PI * 0.5);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.80, 0.80, smoothT);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.85, -0.82, smoothT);
       bY = -0.12 + floatY;
-      bZ = Math.sin(t * Math.PI) * 0.26;
-      bRotY = THREE.MathUtils.lerp(2.30, 0.12, smoothT); // Direct frontal presentation for label
-      bRotZ = Math.sin(t * Math.PI) * -0.07;
+      bZ = Math.sin(t * Math.PI) * 0.48; // Dramatic forward camera sweep
+      bRotY = THREE.MathUtils.lerp(0.95, 1.85, smoothT);
+      bRotZ = Math.sin(t * Math.PI) * 0.18 + floatRoll;
+    } else if (p < 0.76) {
+      // Stage 4: Architecture & Chill (Left flank dynamic helical swing, ice & botanicals)
+      const t = (p - 0.58) / 0.18;
+      const smoothT = Math.sin(t * Math.PI * 0.5);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.82, -0.70, Math.sin(t * Math.PI));
+      bY = -0.12 + floatY;
+      bZ = 0.12 + Math.sin(t * Math.PI) * 0.30;
+      bRotY = THREE.MathUtils.lerp(1.85, 2.50, smoothT) + Math.sin(time * 0.7) * 0.08;
+      bRotX = Math.sin(time * 0.8) * 0.06;
+      bRotZ = floatRoll;
+    } else if (p < 0.88) {
+      // Stage 5: Bespoke Suite & Engraving (Sweeps from left to right, turns frontally to camera)
+      const t = (p - 0.76) / 0.12;
+      const smoothT = Math.sin(t * Math.PI * 0.5);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.70, 0.82, smoothT);
+      bY = -0.12 + floatY;
+      bZ = Math.sin(t * Math.PI) * 0.36;
+      bRotY = THREE.MathUtils.lerp(2.50, 0.05, smoothT); // Direct frontal presentation for monogram & seal
+      bRotZ = Math.sin(t * Math.PI) * -0.10 + floatRoll;
     } else {
-      // Stage 6: Dispatch Vault (Glides to center-left, slow showroom turntable rotation)
+      // Stage 6: Allocation Vault (Center-left showroom presentation with continuous turntable rotation)
       const t = Math.min(1, (p - 0.88) / 0.12);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.80, -0.75, t);
-      bY = -0.14 + floatY;
-      bZ = 0.05;
-      bRotY = 0.12 + Math.sin(time * 0.6) * 0.18;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.82, -0.74, t);
+      bY = -0.13 + floatY;
+      bZ = 0.10;
+      bRotY = 0.05 + Math.sin(time * 0.7) * 0.28;
+      bRotZ = floatRoll;
     }
 
     // --- 2. Dynamic Scroll Velocity & Cursor Parallax Aerodynamics ---
-    const scrollLeanX = THREE.MathUtils.clamp(velocity * 0.0022, -0.15, 0.15);
-    const scrollLeanZ = THREE.MathUtils.clamp(-velocity * 0.0018, -0.12, 0.12);
-    const cursorTiltX = cursor.y * 0.045;
-    const cursorTiltZ = -cursor.x * 0.055;
+    const scrollLeanX = THREE.MathUtils.clamp(velocity * 0.0025, -0.18, 0.18);
+    const scrollLeanZ = THREE.MathUtils.clamp(-velocity * 0.0020, -0.15, 0.15);
+    const cursorTiltX = cursor.y * 0.12;
+    const cursorTiltZ = -cursor.x * 0.15;
+    const cursorShiftX = cursor.x * 0.12;
+    const cursorShiftY = cursor.y * 0.08;
 
     const targetRotX = bRotX + 0.02 + scrollLeanX + cursorTiltX;
     const targetRotZ = bRotZ + scrollLeanZ + cursorTiltZ;
 
-    masterBottleRef.current.position.x = THREE.MathUtils.damp(masterBottleRef.current.position.x, bX, 5, delta);
-    masterBottleRef.current.position.y = THREE.MathUtils.damp(masterBottleRef.current.position.y, bY, 5, delta);
-    masterBottleRef.current.position.z = THREE.MathUtils.damp(masterBottleRef.current.position.z, bZ, 5, delta);
-    masterBottleRef.current.rotation.x = THREE.MathUtils.damp(masterBottleRef.current.rotation.x, targetRotX, 5, delta);
-    masterBottleRef.current.rotation.y = THREE.MathUtils.damp(masterBottleRef.current.rotation.y, bRotY, 5, delta);
-    masterBottleRef.current.rotation.z = THREE.MathUtils.damp(masterBottleRef.current.rotation.z, targetRotZ, 5, delta);
+    masterBottleRef.current.position.x = THREE.MathUtils.damp(masterBottleRef.current.position.x, bX + cursorShiftX, 4.5, delta);
+    masterBottleRef.current.position.y = THREE.MathUtils.damp(masterBottleRef.current.position.y, bY + cursorShiftY, 4.5, delta);
+    masterBottleRef.current.position.z = THREE.MathUtils.damp(masterBottleRef.current.position.z, bZ, 4.5, delta);
+    masterBottleRef.current.rotation.x = THREE.MathUtils.damp(masterBottleRef.current.rotation.x, targetRotX, 4.5, delta);
+    masterBottleRef.current.rotation.y = THREE.MathUtils.damp(masterBottleRef.current.rotation.y, bRotY, 4.5, delta);
+    masterBottleRef.current.rotation.z = THREE.MathUtils.damp(masterBottleRef.current.rotation.z, targetRotZ, 4.5, delta);
 
     // --- 3. Fluid Physics Engine & Gravity Slosh Alignment ---
     fluidPhysics.update(
@@ -704,41 +705,41 @@ export function BottleAssembly() {
     if (liquidMaterialRef.current) {
       liquidMaterialRef.current.color.copy(currentLiquidColor.current);
       liquidMaterialRef.current.emissive.copy(currentEmissiveColor.current);
-      liquidMaterialRef.current.emissiveIntensity = 0.10;
+      liquidMaterialRef.current.emissiveIntensity = 0.40;
     }
 
     if (meniscusMaterialRef.current) {
       meniscusMaterialRef.current.color.copy(currentLiquidColor.current);
       meniscusMaterialRef.current.emissive.copy(currentEmissiveColor.current);
-      meniscusMaterialRef.current.emissiveIntensity = 0.10;
+      meniscusMaterialRef.current.emissiveIntensity = 0.48;
     }
 
     // --- 13. Glass Material Tint (Stage 5 Customization) ---
     if (outerGlassRef.current && glassMaterialRef.current) {
       const tint = formula.glassTint || 'clear';
       let glassColor = '#FFFFFF';
-      let glassAtten = '#FAF6F0';
-      let glassAttenDist = 3.5;
-      let glassRoughness = 0.015;
-      let glassTrans = 0.96;
+      let glassAtten = currentLiquidColor.current; // Refraction carries the vibrant elixir tone
+      let glassAttenDist = 3.2;
+      let glassRoughness = 0.02;
+      let glassTrans = 0.84; // 84% transmission lets vibrant rich liquid glow through!
       let glassClearcoat = 1.0;
       let glassClearcoatRough = 0.015;
 
       if (tint === 'obsidian') {
-        glassColor = '#242322';
-        glassAtten = '#0D0C0B';
-        glassAttenDist = 0.65;
-        glassTrans = 0.72;
+        glassColor = '#1F1E1D';
+        glassAtten = new THREE.Color('#0D0C0B');
+        glassAttenDist = 0.55;
+        glassTrans = 0.65;
         glassRoughness = 0.04;
       } else if (tint === 'amber') {
-        glassColor = '#C26D20';
-        glassAtten = '#8A3D0A';
-        glassAttenDist = 0.85;
-        glassTrans = 0.82;
-        glassRoughness = 0.02;
+        glassColor = '#D97706';
+        glassAtten = new THREE.Color('#92400E');
+        glassAttenDist = 0.75;
+        glassTrans = 0.76;
+        glassRoughness = 0.025;
       } else if (tint === 'frosted') {
         glassColor = '#FAF8F5';
-        glassAtten = '#E8E4DC';
+        glassAtten = new THREE.Color('#E8E4DC');
         glassAttenDist = 1.8;
         glassTrans = 0.86;
         glassRoughness = 0.42;
@@ -944,28 +945,29 @@ export function BottleAssembly() {
       {/* ========================================================================= */}
       {/* 4. SINGLE UNIFIED LIQUID MESH (Translucent, Glowing, Zero Z-Fighting)    */}
       {/* ========================================================================= */}
-      <mesh ref={liquidBodyRef} geometry={liquidGeometry} renderOrder={2} visible={false}>
+      <mesh ref={liquidBodyRef} geometry={liquidGeometry} renderOrder={1} visible={false}>
         <meshStandardMaterial
           ref={liquidMaterialRef}
-          map={liquidTextures.yuzu}
-          color="#FFFFFF"
-          emissive="#120600"
-          emissiveIntensity={0.08}
-          roughness={0.035}
+          color="#F59E0B"
+          emissive="#78350F"
+          emissiveIntensity={0.38}
+          roughness={0.08}
           metalness={0.02}
-          transparent={true}
-          opacity={0.88}
+          transparent={false}
         />
       </mesh>
 
       {/* Meniscus Top Surface Disc with Capillary Tension */}
-      <mesh ref={meniscusRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2} visible={false}>
+      <mesh ref={meniscusRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1} visible={false}>
         <meshStandardMaterial
           ref={meniscusMaterialRef}
           color="#F59E0B"
-          roughness={0.015}
+          emissive="#78350F"
+          emissiveIntensity={0.45}
+          roughness={0.05}
           metalness={0.0}
           side={THREE.DoubleSide}
+          transparent={false}
         />
       </mesh>
 
@@ -1050,10 +1052,10 @@ export function BottleAssembly() {
       <mesh ref={outerGlassRef} geometry={glassGeometry} renderOrder={3} castShadow receiveShadow>
         <meshPhysicalMaterial
           ref={glassMaterialRef}
-          transmission={0.96}
+          transmission={0.82}
           roughness={0.015}
           ior={1.50}
-          thickness={0.07}
+          thickness={0.06}
           transparent={true}
           opacity={1.0}
           reflectivity={0.98}
@@ -1061,7 +1063,7 @@ export function BottleAssembly() {
           clearcoatRoughness={0.015}
           color="#FFFFFF"
           attenuationColor="#FAF6F0"
-          attenuationDistance={3.2}
+          attenuationDistance={1.8}
         />
       </mesh>
 

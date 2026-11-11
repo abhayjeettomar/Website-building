@@ -4,27 +4,20 @@ import {
   Flame, 
   Check, 
   ArrowRight, 
-  ShieldCheck, 
-  Droplet,
-  Layers,
-  Award,
-  Sparkles,
-  Printer,
+  Printer, 
   RotateCcw,
-  Sliders,
-  CheckCircle2,
-  Tag
+  Sparkles
 } from 'lucide-react';
 import { 
   scrollStore, 
   BaseDistillate, 
   NootropicStack, 
-  BotanicalModifier,
+  BotanicalModifier, 
   ChillMode, 
-  SealColor,
-  GlassTint,
-  LabelPaper,
-  WaxDip
+  SealColor, 
+  GlassTint, 
+  LabelPaper, 
+  WaxDip 
 } from '../store/scrollStore';
 import { audioSystem } from '../utils/audioSystem';
 
@@ -37,7 +30,6 @@ export function ScrollStagesOverlay() {
   const [promoFeedback, setPromoFeedback] = useState<string | null>(null);
 
   useEffect(() => {
-    // Listen to discrete store updates
     const unsub = scrollStore.subscribe(() => {
       setFormula({ ...scrollStore.formula });
       setOrder({ ...scrollStore.order });
@@ -46,7 +38,7 @@ export function ScrollStagesOverlay() {
     return unsub;
   }, []);
 
-  // High-performance RAF listener for smooth continuous card interpolation and scrubber bars
+  // RAF listener for smooth continuous card interpolation
   useEffect(() => {
     let animId: number;
     let lastP = -1;
@@ -162,21 +154,21 @@ export function ScrollStagesOverlay() {
       roman: 'I',
       name: 'Alpha-Wave Cognitive Flow',
       dose: '600mg Lion\'s Mane (10:1 Dual Extract) · 250mg L-Theanine',
-      desc: 'Stimulates neuro-trophic synthesis and calm alpha brainwave velocity without caffeine tension.',
+      desc: 'Calm alpha brainwave velocity without caffeine tension.',
     },
     {
       id: 'social',
       roman: 'II',
       name: 'Sensory Euphoria & Social Uplift',
-      dose: '400mg Mexican Damiana · 250mg Himalayan Schisandra Berry',
-      desc: 'Promotes sensory warmth, mild dopamine tone, and effortless conversational engagement.',
+      dose: '400mg Mexican Damiana · 250mg Himalayan Schisandra',
+      desc: 'Sensory warmth, mild dopamine tone, and conversational engagement.',
     },
     {
       id: 'restoration',
       roman: 'III',
       name: 'Parasympathetic Restoration',
       dose: '350mg KSM-66® Ashwagandha · 150mg Magnesium L-Threonate',
-      desc: 'Down-regulates evening cortisol, physical tension release, and restorative cellular recovery.',
+      desc: 'Down-regulates evening cortisol and aids cellular recovery.',
     },
   ];
 
@@ -185,55 +177,55 @@ export function ScrollStagesOverlay() {
     {
       id: 'rosemary',
       name: 'Charred Rosemary & Cardamom',
-      botanical: 'Steam-distilled Spanish rosemary hydrosol & green cardamom spice',
+      botanical: 'Spanish rosemary hydrosol & green cardamom spice',
       vol: '60mL (12%)',
     },
     {
       id: 'vetiver',
       name: 'Smoked Vetiver & Fig Leaf',
-      botanical: 'Low-temperature Haitian vetiver root & lactonic fig leaf cordial',
+      botanical: 'Haitian vetiver root & lactonic fig leaf cordial',
       vol: '60mL (12%)',
     },
     {
       id: 'shiso',
       name: 'Herbaceous Shiso & Mountain Sage',
-      botanical: 'Sub-zero purple shiso cold-press & Dalmatian mountain sage',
+      botanical: 'Purple shiso cold-press & Dalmatian mountain sage',
       vol: '60mL (12%)',
     },
   ];
 
   const seals: { id: SealColor; name: string; hex: string; desc: string }[] = [
-    { id: 'brass', name: 'Champagne Brass', hex: '#C59B27', desc: 'Hand-burnished brushed brass' },
-    { id: 'noir', name: 'Obsidian Titanium', hex: '#22201D', desc: 'Blackened aerospace titanium' },
-    { id: 'copper', name: 'Rose Copper', hex: '#B3542E', desc: 'Fire-annealed copper foil' },
-    { id: 'silver', name: 'Sterling Platinum', hex: '#D1D5DB', desc: 'Mirror rhodium-plated finish' },
-    { id: 'gold', name: '24K Aurum Gold', hex: '#F59E0B', desc: '24-karat gold electroplate' },
+    { id: 'brass', name: 'Champagne Brass', hex: '#C59B27', desc: 'Brushed brass' },
+    { id: 'noir', name: 'Obsidian Titanium', hex: '#22201D', desc: 'Blackened titanium' },
+    { id: 'copper', name: 'Rose Copper', hex: '#B3542E', desc: 'Fire-annealed copper' },
+    { id: 'silver', name: 'Sterling Platinum', hex: '#D1D5DB', desc: 'Mirror rhodium' },
+    { id: 'gold', name: '24K Aurum Gold', hex: '#F59E0B', desc: '24-karat electroplate' },
   ];
 
   const glassTints: { id: GlassTint; name: string; badge: string; desc: string }[] = [
-    { id: 'clear', name: 'Clear Borosilicate', badge: 'Ultra-Pure', desc: 'Optical clarity' },
-    { id: 'obsidian', name: 'Smoked Obsidian', badge: 'Graphite', desc: 'Volcanic glass' },
-    { id: 'amber', name: 'Apothecary Amber', badge: 'UV-Shield', desc: 'Amber crystal' },
+    { id: 'clear', name: 'Clear Borosilicate', badge: 'Pure', desc: 'Optical clarity' },
+    { id: 'obsidian', name: 'Smoked Obsidian', badge: 'Deep', desc: 'Volcanic flint' },
+    { id: 'amber', name: 'Apothecary Amber', badge: 'Shield', desc: 'UV amber crystal' },
     { id: 'frosted', name: 'Frosted Satin', badge: 'Matte', desc: 'Acid-etched frost' },
   ];
 
   const labelPapers: { id: LabelPaper; name: string; badge: string; desc: string }[] = [
     { id: 'ivory', name: 'Ivory Cotton', badge: '450gsm', desc: 'Letterpress cotton' },
-    { id: 'noir', name: 'Midnight Noir', badge: 'Hot Foil', desc: 'Matte black & bronze' },
-    { id: 'washi', name: 'Mulberry Washi', badge: 'Artisanal', desc: 'Echizen Japanese' },
+    { id: 'noir', name: 'Midnight Noir', badge: 'Foil', desc: 'Matte black & bronze' },
+    { id: 'washi', name: 'Mulberry Washi', badge: 'Handmade', desc: 'Echizen Japanese' },
   ];
 
   const waxDips: { id: WaxDip; name: string; hex: string; desc: string }[] = [
     { id: 'none', name: 'Flor Cork', hex: '#C29B38', desc: 'Natural cork' },
     { id: 'crimson', name: 'Crimson', hex: '#991B1B', desc: 'Vermilion seal' },
     { id: 'black', name: 'Pitch Black', hex: '#171614', desc: 'Matte wax' },
-    { id: 'gold', name: 'Aurum Gold', hex: '#D4AF37', desc: 'Gold-dusted' },
+    { id: 'gold', name: 'Aurum Gold', hex: '#D4AF37', desc: 'Gold dusted' },
   ];
 
   const allocationTiers = [
-    { qty: 1 as const, name: 'Single Vessel', vol: '500mL', basePrice: 145, engPrice: 28, badge: 'Standard Reserve' },
-    { qty: 2 as const, name: 'Collector Pair', vol: '2x 500mL', basePrice: 260, engPrice: 50, badge: 'Save $36 (Atelier Choice)' },
-    { qty: 6 as const, name: 'Private Cask Cellar', vol: '6x 500mL', basePrice: 720, engPrice: 100, badge: 'Save $218 (Collector Tier)' },
+    { qty: 1 as const, name: 'Single Vessel', vol: '500mL', basePrice: 145, engPrice: 28, badge: 'Reserve' },
+    { qty: 2 as const, name: 'Collector Pair', vol: '2x 500mL', basePrice: 260, engPrice: 50, badge: 'Save $36' },
+    { qty: 6 as const, name: 'Private Cellar', vol: '6x 500mL', basePrice: 720, engPrice: 100, badge: 'Save $218' },
   ];
 
   const currencyMap: Record<string, { symbol: string; rate: number }> = {
@@ -253,10 +245,10 @@ export function ScrollStagesOverlay() {
   const stageTargets = [
     { num: 1, label: 'Genesis', p: 0.0 },
     { num: 2, label: 'Distillate', p: 0.24 },
-    { num: 3, label: 'Infusion', p: 0.45 },
-    { num: 4, label: 'Architecture', p: 0.65 },
-    { num: 5, label: 'Engraving', p: 0.80 },
-    { num: 6, label: 'Allocation', p: 0.94 },
+    { num: 3, label: 'Infusion', p: 0.46 },
+    { num: 4, label: 'Architecture', p: 0.66 },
+    { num: 5, label: 'Atelier', p: 0.82 },
+    { num: 6, label: 'Allocation', p: 0.95 },
   ];
 
   const handleJumpToStage = (targetProgress: number) => {
@@ -268,16 +260,15 @@ export function ScrollStagesOverlay() {
     });
   };
 
-  // Continuous Spatial Interpolation: Computes opacity, translateY, and intra-stage progress %
+  // Continuous Spatial Interpolation with smooth cross-fading
   const getStageStyle = (enterStart: number, enterEnd: number, exitStart: number, exitEnd: number) => {
     const p = scrollProgress;
     if (p < enterStart || p > exitEnd) {
       return {
         opacity: 0,
-        transform: `translateY(${p < enterStart ? 28 : -28}px)`,
+        transform: `translateY(${p < enterStart ? 24 : -24}px)`,
         pointerEvents: 'none' as const,
         display: 'none',
-        intraProgress: p < enterStart ? 0 : 100,
       };
     }
 
@@ -287,46 +278,39 @@ export function ScrollStagesOverlay() {
     if (p < enterEnd && enterEnd > enterStart) {
       const t = (p - enterStart) / (enterEnd - enterStart);
       opacity = t;
-      translateY = (1 - t) * 28;
+      translateY = (1 - t) * 24;
     } else if (p > exitStart && exitEnd > exitStart) {
       const t = (p - exitStart) / (exitEnd - exitStart);
       opacity = 1 - t;
-      translateY = -t * 28;
+      translateY = -t * 24;
     }
-
-    const intra = Math.min(
-      100,
-      Math.max(0, Math.round(((p - enterStart) / (exitEnd - enterStart)) * 100))
-    );
 
     return {
       opacity,
       transform: `translateY(${translateY.toFixed(1)}px)`,
       pointerEvents: opacity > 0.35 ? ('auto' as const) : ('none' as const),
       display: opacity > 0.01 ? 'flex' : 'none',
-      intraProgress: intra,
     };
   };
 
-  const s1 = getStageStyle(0.00, 0.00, 0.11, 0.17);
-  const s2 = getStageStyle(0.13, 0.18, 0.31, 0.37);
-  const s3 = getStageStyle(0.33, 0.38, 0.51, 0.57);
-  const s4 = getStageStyle(0.53, 0.58, 0.70, 0.75);
-  const s5 = getStageStyle(0.71, 0.76, 0.85, 0.89);
-  const s6 = getStageStyle(0.86, 0.91, 1.00, 1.00);
+  const s1 = getStageStyle(0.00, 0.00, 0.12, 0.18);
+  const s2 = getStageStyle(0.14, 0.20, 0.34, 0.39);
+  const s3 = getStageStyle(0.35, 0.40, 0.54, 0.59);
+  const s4 = getStageStyle(0.55, 0.60, 0.72, 0.77);
+  const s5 = getStageStyle(0.73, 0.78, 0.85, 0.89);
+  const s6 = getStageStyle(0.86, 0.90, 1.00, 1.00);
 
-  // Active stage number for navigation rail
   let activeRailStage = 1;
   if (scrollProgress >= 0.88) activeRailStage = 6;
-  else if (scrollProgress >= 0.74) activeRailStage = 5;
-  else if (scrollProgress >= 0.56) activeRailStage = 4;
-  else if (scrollProgress >= 0.36) activeRailStage = 3;
-  else if (scrollProgress >= 0.16) activeRailStage = 2;
+  else if (scrollProgress >= 0.76) activeRailStage = 5;
+  else if (scrollProgress >= 0.58) activeRailStage = 4;
+  else if (scrollProgress >= 0.38) activeRailStage = 3;
+  else if (scrollProgress >= 0.18) activeRailStage = 2;
 
   return (
     <div className="fixed inset-0 w-screen h-screen z-30 pointer-events-none overflow-hidden select-none text-[#171614]">
-      {/* Right-Side Vertical Step Navigation Rail (Desktop) */}
-      <div className="hidden xl:flex fixed right-5 top-1/2 -translate-y-1/2 flex-col items-end space-y-4 pointer-events-auto z-40">
+      {/* Right-Side Minimal Navigation Rail */}
+      <div className="hidden xl:flex fixed right-6 top-1/2 -translate-y-1/2 flex-col items-end space-y-3.5 pointer-events-auto z-40">
         {stageTargets.map((s) => (
           <button
             key={s.num}
@@ -334,19 +318,19 @@ export function ScrollStagesOverlay() {
             className="group flex items-center space-x-3 cursor-pointer py-1"
           >
             <span
-              className={`font-mono text-[10px] tracking-wider transition-all duration-300 ${
+              className={`font-sans text-[11px] tracking-wide transition-all duration-300 ${
                 activeRailStage === s.num
                   ? 'text-[#B86B27] font-medium opacity-100 translate-x-0'
-                  : 'text-[#171614]/30 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0'
+                  : 'text-[#171614]/35 opacity-0 group-hover:opacity-100 translate-x-1.5 group-hover:translate-x-0'
               }`}
             >
-              0{s.num} {s.label}
+              {s.label}
             </span>
             <span
               className={`rounded-full transition-all duration-300 ${
                 activeRailStage === s.num
-                  ? 'w-2.5 h-2.5 bg-[#B86B27] ring-4 ring-[#B86B27]/15'
-                  : 'w-1.5 h-1.5 bg-[#171614]/20 group-hover:bg-[#171614]/60'
+                  ? 'w-2 h-2 bg-[#B86B27] ring-4 ring-[#B86B27]/20'
+                  : 'w-1.5 h-1.5 bg-[#171614]/20 group-hover:bg-[#171614]/50'
               }`}
             />
           </button>
@@ -354,7 +338,7 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 1: GENESIS (RADICAL LUXURY MINIMALISM) (0% - 16%)   */}
+      {/* 1. GENESIS (HERO VIEW)                                     */}
       {/* ========================================================= */}
       <div
         style={{
@@ -366,9 +350,9 @@ export function ScrollStagesOverlay() {
         className="absolute inset-0 px-6 sm:px-12 lg:px-20 py-16 flex flex-col justify-end transition-transform duration-100 ease-out"
       >
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 max-w-[1440px] w-full mx-auto pb-4">
-          <div className="max-w-lg">
-            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.24em] uppercase block mb-2.5">
-              BOROSILICATE FLINT · 500ML BESPOKE
+          <div className="max-w-xl">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.24em] uppercase block mb-3 font-semibold">
+              BOROSILICATE FLINT · 500ML BESPOKE DECANTER
             </span>
             <h1 className="font-sans font-light text-3xl sm:text-5xl text-[#171614] leading-[1.08] tracking-[-0.03em]">
               A pure vessel,<br />
@@ -385,10 +369,10 @@ export function ScrollStagesOverlay() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => handleJumpToStage(0.24)}
-              className="flex items-center space-x-2.5 px-4 py-2.5 rounded-full bg-white/90 hover:bg-white border border-[#171614]/15 hover:border-[#B86B27] text-xs font-sans text-[#171614] transition-all shadow-sm hover:shadow cursor-pointer group"
+              className="flex items-center space-x-2.5 px-5 py-2.5 rounded-full bg-white/95 hover:bg-white border border-[#171614]/15 hover:border-[#B86B27] text-xs font-sans text-[#171614] transition-all shadow-sm hover:shadow cursor-pointer group"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
-              <span>Begin formulation</span>
+              <span className="font-medium">Begin formulation</span>
               <span className="text-[#B86B27] group-hover:translate-y-0.5 transition-transform">↓</span>
             </button>
           </div>
@@ -396,7 +380,7 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 2: BASE DISTILLATE (320mL / 64%) (16% - 36%)        */}
+      {/* 2. BASE DISTILLATE (320mL / 64%)                           */}
       {/* ========================================================= */}
       <div
         style={{
@@ -407,68 +391,52 @@ export function ScrollStagesOverlay() {
         }}
         className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
-        <div
-          data-lenis-prevent="true"
-          onWheel={(e) => e.stopPropagation()}
-          className="w-full max-w-[390px] pointer-events-auto bg-white/90 p-5 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto"
-        >
-          {/* Phase Telemetry & Scrubber */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
-            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
-              <Droplet size={11} className="text-[#B86B27]" />
-              <span>PHASE 01 // FOUNDATION</span>
-            </div>
-            <span className="tracking-wider">{s2.intraProgress}%</span>
-          </div>
-
-          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-2.5">
-            <div
-              className="bg-[#B86B27] h-full transition-all duration-150"
-              style={{ width: `${s2.intraProgress}%` }}
-            />
-          </div>
-
-          <div className="flex items-baseline justify-between mb-1">
-            <h2 className="font-sans font-light text-xl text-[#171614] tracking-[-0.02em]">
-              Primary Distillate<span className="text-[#B86B27]">.</span>
-            </h2>
+        <div className="w-full max-w-[440px] pointer-events-auto bg-[#FCFAF7]/95 p-6 sm:p-7 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(23,22,20,0.08)]">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.20em] uppercase font-semibold">
+              PRIMARY EXTRACTION
+            </span>
             <span className="font-mono text-[10px] text-[#B86B27] tracking-wider font-medium">
-              320mL / 64% Foundation
+              320mL Foundation
             </span>
           </div>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-snug mb-3">
-            Cold-vacuum extraction. Establishes the core aromatic and mineral profile.
+
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Primary Distillate <span className="font-serif italic font-normal text-[#B86B27]">Base</span>.
+          </h2>
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
+            Sub-zero cold vacuum extraction. Establishes the core aromatic palette and mineral mouthfeel.
           </p>
 
-          {/* Factual Volume Telemetry Bar */}
-          <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
+          {/* Volume Status Pill */}
+          <div className="mb-4 px-3.5 py-2 rounded-xl bg-white/70 border border-[#171614]/[0.07] flex items-center justify-between text-xs font-mono">
             <div className="flex items-center space-x-2">
               <span className={`w-2 h-2 rounded-full ${pourState.isPouring ? 'bg-[#B86B27] animate-ping' : pourState.fillLevel >= 0.64 ? 'bg-[#065F46]' : 'bg-[#171614]/30'}`} />
-              <span className="text-[#171614]/80 text-[10px] truncate max-w-[210px]">{pourState.statusText}</span>
+              <span className="text-[#171614]/80 text-[11px] truncate max-w-[220px]">{pourState.statusText}</span>
             </div>
-            <span className="text-[#B86B27] text-[10px] tracking-wider font-semibold">
+            <span className="text-[#B86B27] text-[11px] tracking-wider font-semibold">
               {pourState.currentVolumeMl} / 500mL
             </span>
           </div>
 
-          {/* Factual 320mL Base Distillates */}
-          <div className="space-y-1.5">
+          {/* 320mL Base Distillate Options */}
+          <div className="space-y-2.5">
             {bases.map((base) => {
               const isSelected = formula.base === base.id;
               return (
                 <button
                   key={base.id}
                   onClick={() => handleSelectBase(base.id)}
-                  className={`w-full text-left p-2.5 rounded-xl transition-all duration-300 relative group cursor-pointer ${
+                  className={`w-full text-left p-3.5 rounded-2xl transition-all duration-300 relative group cursor-pointer ${
                     isSelected
-                      ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/25'
+                      ? 'bg-white shadow-md border-2 border-[#B86B27] ring-2 ring-[#B86B27]/10'
+                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/20'
                   }`}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-2.5">
+                    <div className="flex items-start space-x-3">
                       <span
-                        className="w-3.5 h-3.5 rounded-full mt-0.5 shadow-sm transition-transform group-hover:scale-110 flex-shrink-0"
+                        className="w-4 h-4 rounded-full mt-0.5 shadow-sm transition-transform group-hover:scale-110 flex-shrink-0"
                         style={{ backgroundColor: base.color }}
                       />
                       <div>
@@ -476,24 +444,27 @@ export function ScrollStagesOverlay() {
                           <h3 className="font-sans font-medium text-xs text-[#171614]">
                             {base.name}
                           </h3>
-                          <span className="text-[9px] font-mono text-[#B86B27] px-1 py-0.5 rounded bg-[#B86B27]/10">
+                          <span className="text-[9px] font-mono text-[#B86B27] px-1.5 py-0.5 rounded bg-[#B86B27]/10">
                             {base.vol}
                           </span>
                         </div>
-                        <p className="font-sans text-[11px] text-[#6E6961] mt-0.5 font-light leading-snug">
+                        <p className="font-sans text-[11px] text-[#6E6961] mt-1 font-light leading-snug">
                           {base.subtitle}
+                        </p>
+                        <p className="font-mono text-[9px] text-[#171614]/40 mt-1">
+                          {base.notes}
                         </p>
                       </div>
                     </div>
 
-                    <div className="text-right flex-shrink-0 pl-1.5">
+                    <div className="text-right flex-shrink-0 pl-2">
                       {isSelected ? (
-                        <div className="flex items-center space-x-1 text-[#B86B27] font-mono text-[9px] font-semibold">
-                          <Check size={11} strokeWidth={2.5} />
-                          <span>320ML</span>
+                        <div className="flex items-center space-x-1 text-[#B86B27] font-mono text-[10px] font-semibold">
+                          <Check size={12} strokeWidth={2.5} />
+                          <span>ACTIVE</span>
                         </div>
                       ) : (
-                        <span className="text-[#171614]/30 font-mono text-[9px] group-hover:text-[#171614]/60">
+                        <span className="text-[#171614]/30 font-mono text-[10px] group-hover:text-[#B86B27] transition-colors">
                           POUR
                         </span>
                       )}
@@ -504,22 +475,22 @@ export function ScrollStagesOverlay() {
             })}
           </div>
 
-          {/* Continue Action Pill */}
+          {/* Continue Navigation Button */}
           <button
-            onClick={() => handleJumpToStage(0.45)}
-            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+            onClick={() => handleJumpToStage(0.46)}
+            className="w-full mt-4 py-2.5 px-4 rounded-2xl bg-white hover:bg-[#FAF7F0] border border-[#171614]/10 hover:border-[#B86B27]/40 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer shadow-xs group"
           >
-            <span className="text-[10px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 01 Done</span>
+            <span className="text-[11px] font-sans text-[#6E6961]">Continue formulation</span>
             <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
-              <span>Next: Adaptogen Infusion (+80mL)</span>
-              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+              <span>Adaptogen Infusion (+80mL)</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 3: BIOACTIVE NOOTROPIC (+80mL = 400mL) (36% - 56%)   */}
+      {/* 3. BIOACTIVE NOOTROPIC (+80mL)                             */}
       {/* ========================================================= */}
       <div
         style={{
@@ -530,84 +501,68 @@ export function ScrollStagesOverlay() {
         }}
         className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
       >
-        <div
-          data-lenis-prevent="true"
-          onWheel={(e) => e.stopPropagation()}
-          className="w-full max-w-[390px] mr-0 xl:mr-6 pointer-events-auto bg-white/90 p-5 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto"
-        >
-          {/* Phase Telemetry & Scrubber */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
-            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
-              <Layers size={11} className="text-[#B86B27]" />
-              <span>PHASE 02 // ADAPTOGEN INFUSION</span>
-            </div>
-            <span className="tracking-wider">{s3.intraProgress}%</span>
-          </div>
-
-          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-2.5">
-            <div
-              className="bg-[#B86B27] h-full transition-all duration-150"
-              style={{ width: `${s3.intraProgress}%` }}
-            />
-          </div>
-
-          <div className="flex items-baseline justify-between mb-1">
-            <h2 className="font-sans font-light text-xl text-[#171614] tracking-[-0.02em]">
-              Clinical Nootropics<span className="text-[#B86B27]">.</span>
-            </h2>
+        <div className="w-full max-w-[440px] pointer-events-auto bg-[#FCFAF7]/95 p-6 sm:p-7 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(23,22,20,0.08)]">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.20em] uppercase font-semibold">
+              BIOACTIVE INFUSION
+            </span>
             <span className="font-mono text-[10px] text-[#B86B27] tracking-wider font-medium">
-              +80mL / 80% Capacity
+              +80mL / 400mL Total
             </span>
           </div>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-snug mb-3">
-            Dual-extract adaptogenic matrix. Unseals stopper; volume rises to 400mL (80%).
+
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Clinical <span className="font-serif italic font-normal text-[#B86B27]">Nootropics</span>.
+          </h2>
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
+            Dual-extract adaptogenic matrix. Unseals stopper; infuses targeted neuro-nutritional synergy.
           </p>
 
-          {/* Volume Bar */}
-          <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
-            <span className="text-[#171614]/80 text-[10px]">
-              {formula.nootropic ? '80mL adaptogen infused' : 'Select bioactive stack (+80mL)'}
+          {/* Volume Status Pill */}
+          <div className="mb-4 px-3.5 py-2 rounded-xl bg-white/70 border border-[#171614]/[0.07] flex items-center justify-between text-xs font-mono">
+            <span className="text-[#171614]/80 text-[11px]">
+              {formula.nootropic ? '80mL adaptogen stack infused' : 'Select bioactive stack (+80mL)'}
             </span>
-            <span className="text-[#B86B27] text-[10px] tracking-wider font-semibold">
+            <span className="text-[#B86B27] text-[11px] tracking-wider font-semibold">
               {pourState.currentVolumeMl} / 500mL
             </span>
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             {nootropics.map((item) => {
               const isSelected = formula.nootropic === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectNootropic(item.id)}
-                  className={`w-full text-left p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                  className={`w-full text-left p-3.5 rounded-2xl transition-all duration-300 cursor-pointer ${
                     isSelected
-                      ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/25'
+                      ? 'bg-white shadow-md border-2 border-[#B86B27] ring-2 ring-[#B86B27]/10'
+                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/20'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center space-x-1.5">
-                        <span className="font-serif italic text-xs text-[#B86B27]">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-serif italic text-sm text-[#B86B27]">
                           {item.roman}.
                         </span>
                         <h3 className="font-sans font-medium text-xs text-[#171614]">
                           {item.name}
                         </h3>
                       </div>
-                      <div className="font-mono text-[9px] text-[#B86B27] mt-0.5">
+                      <div className="font-mono text-[9px] text-[#B86B27] mt-1">
                         {item.dose}
                       </div>
-                      <p className="font-sans text-[10px] text-[#6E6961] mt-0.5 font-light leading-snug">
+                      <p className="font-sans text-[11px] text-[#6E6961] mt-1 font-light leading-snug">
                         {item.desc}
                       </p>
                     </div>
 
-                    <div className="flex-shrink-0 pl-1.5 pt-0.5">
+                    <div className="flex-shrink-0 pl-2 pt-0.5">
                       {isSelected ? (
-                        <div className="w-4 h-4 rounded-full bg-[#B86B27] text-white flex items-center justify-center">
-                          <Check size={10} strokeWidth={2.5} />
+                        <div className="w-4 h-4 rounded-full bg-[#B86B27] text-white flex items-center justify-center shadow-xs">
+                          <Check size={11} strokeWidth={2.5} />
                         </div>
                       ) : (
                         <div className="w-4 h-4 rounded-full border border-[#171614]/20" />
@@ -619,22 +574,22 @@ export function ScrollStagesOverlay() {
             })}
           </div>
 
-          {/* Continue Action Pill */}
+          {/* Continue Navigation Button */}
           <button
-            onClick={() => handleJumpToStage(0.65)}
-            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+            onClick={() => handleJumpToStage(0.66)}
+            className="w-full mt-4 py-2.5 px-4 rounded-2xl bg-white hover:bg-[#FAF7F0] border border-[#171614]/10 hover:border-[#B86B27]/40 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer shadow-xs group"
           >
-            <span className="text-[10px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 02 Done</span>
+            <span className="text-[11px] font-sans text-[#6E6961]">Continue formulation</span>
             <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
-              <span>Next: Modifier Cordial & Chill</span>
-              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+              <span>Modifier Cordial & Chill</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 4: MODIFIER CORDIAL & CHILL (+100mL = 500mL) (56% - 74%) */}
+      {/* 4. MODIFIER CORDIAL & CHILL (+100mL = 500mL)              */}
       {/* ========================================================= */}
       <div
         style={{
@@ -645,53 +600,27 @@ export function ScrollStagesOverlay() {
         }}
         className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
       >
-        <div
-          data-lenis-prevent="true"
-          onWheel={(e) => e.stopPropagation()}
-          className="w-full max-w-[390px] mr-0 xl:mr-6 pointer-events-auto bg-white/90 p-5 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto"
-        >
-          {/* Phase Telemetry & Scrubber */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
-            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
-              <Sparkles size={11} className="text-[#B86B27]" />
-              <span>PHASE 03 // ARCHITECTURE & CHILL</span>
-            </div>
-            <span className="tracking-wider">{s4.intraProgress}%</span>
-          </div>
-
-          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-2.5">
-            <div
-              className="bg-[#B86B27] h-full transition-all duration-150"
-              style={{ width: `${s4.intraProgress}%` }}
-            />
-          </div>
-
-          <div className="flex items-baseline justify-between mb-1">
-            <h2 className="font-sans font-light text-xl text-[#171614] tracking-[-0.02em]">
-              Architecture & Chill<span className="text-[#B86B27]">.</span>
-            </h2>
+        <div className="w-full max-w-[440px] pointer-events-auto bg-[#FCFAF7]/95 p-6 sm:p-7 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(23,22,20,0.08)]">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.20em] uppercase font-semibold">
+              CORDIAL & TEMPERATURE
+            </span>
             <span className="font-mono text-[10px] text-[#B86B27] tracking-wider font-semibold">
-              500mL (100% Full)
+              500mL Full Volume
             </span>
           </div>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-snug mb-3">
-            Binds the aromatics and finishes the 500mL vessel capacity.
+
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Botanical Cordial <span className="font-serif italic font-normal text-[#B86B27]">& Chill</span>.
+          </h2>
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
+            Binds the distillation with steam-extracted aromatic hydrosol and sets crystal serving temperature.
           </p>
 
-          {/* Volume Bar */}
-          <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
-            <span className="text-[#171614]/80 text-[10px]">
-              Final blend: {pourState.currentVolumeMl}mL / 500mL
-            </span>
-            <span className="text-[#B86B27] text-[10px] tracking-wider font-semibold">
-              100% CAPACITY
-            </span>
-          </div>
-
           {/* 60mL Botanical Modifier Cordials */}
-          <div className="space-y-1.5 mb-2.5">
+          <div className="space-y-2 mb-3.5">
             <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest">
-              Select Aromatic Modifier (+60mL)
+              Aromatic Modifier Hydrosol (+60mL)
             </label>
             {modifiers.map((mod) => {
               const isSelected = formula.modifier === mod.id;
@@ -699,7 +628,7 @@ export function ScrollStagesOverlay() {
                 <button
                   key={mod.id}
                   onClick={() => handleSelectModifier(mod.id)}
-                  className={`w-full text-left p-2 rounded-xl transition-all duration-300 cursor-pointer ${
+                  className={`w-full text-left p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
                     isSelected
                       ? 'bg-white shadow-sm border-2 border-[#B86B27]'
                       : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
@@ -708,7 +637,7 @@ export function ScrollStagesOverlay() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-sans font-medium text-xs text-[#171614]">{mod.name}</h4>
-                      <p className="font-sans text-[10px] text-[#6E6961]">{mod.botanical}</p>
+                      <p className="font-sans text-[10px] text-[#6E6961] mt-0.5">{mod.botanical}</p>
                     </div>
                     <span className="font-mono text-[9px] text-[#B86B27] pl-2 font-medium">{mod.vol}</span>
                   </div>
@@ -718,31 +647,31 @@ export function ScrollStagesOverlay() {
           </div>
 
           {/* 40mL Chill Architecture */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5 mb-2">
             <button
               onClick={() => handleSelectChill('glacial')}
-              className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                 formula.chill === 'glacial'
-                  ? 'bg-white border-2 border-[#9CE0FF] shadow-sm'
+                  ? 'bg-white border-2 border-[#0284C7] shadow-sm'
                   : 'bg-white/60 hover:bg-white border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-5 h-5 rounded-full bg-[#9CE0FF]/20 text-[#0284C7] flex items-center justify-center mb-1">
+              <div className="w-5 h-5 rounded-full bg-[#0284C7]/15 text-[#0284C7] flex items-center justify-center mb-1.5">
                 <Snowflake size={11} />
               </div>
               <h4 className="font-sans font-medium text-xs text-[#171614]">Glacial Serve</h4>
-              <p className="font-mono text-[9px] text-[#B86B27] mt-0.5">-4°C · Hand-Cut Ice (+40mL)</p>
+              <p className="font-mono text-[9px] text-[#0284C7] mt-0.5">-4°C · Hand-Cut Ice (+40mL)</p>
             </button>
 
             <button
               onClick={() => handleSelectChill('cellar')}
-              className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                 formula.chill === 'cellar'
                   ? 'bg-white border-2 border-[#B86B27] shadow-sm'
                   : 'bg-white/60 hover:bg-white border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-5 h-5 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-1">
+              <div className="w-5 h-5 rounded-full bg-[#B86B27]/15 text-[#B86B27] flex items-center justify-center mb-1.5">
                 <Flame size={11} />
               </div>
               <h4 className="font-sans font-medium text-xs text-[#171614]">Cellar Serve</h4>
@@ -750,22 +679,22 @@ export function ScrollStagesOverlay() {
             </button>
           </div>
 
-          {/* Continue Action Pill */}
+          {/* Continue Navigation Button */}
           <button
-            onClick={() => handleJumpToStage(0.80)}
-            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+            onClick={() => handleJumpToStage(0.82)}
+            className="w-full mt-4 py-2.5 px-4 rounded-2xl bg-white hover:bg-[#FAF7F0] border border-[#171614]/10 hover:border-[#B86B27]/40 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer shadow-xs group"
           >
-            <span className="text-[10px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 03 Done</span>
+            <span className="text-[11px] font-sans text-[#6E6961]">Continue formulation</span>
             <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
-              <span>Next: Bespoke Vessel Suite</span>
-              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+              <span>Bespoke Vessel Suite</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 5: BESPOKE 3D CUSTOMIZATION SUITE (74% - 88%)       */}
+      {/* 5. BESPOKE 3D ATELIER SUITE (CUSTOMIZATION)                */}
       {/* ========================================================= */}
       <div
         style={{
@@ -776,40 +705,29 @@ export function ScrollStagesOverlay() {
         }}
         className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
-        <div
-          data-lenis-prevent="true"
-          onWheel={(e) => e.stopPropagation()}
-          className="w-full max-w-[420px] pointer-events-auto bg-white/90 p-5 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto"
-        >
-          {/* Phase Telemetry & Scrubber */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
-            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
-              <Award size={11} className="text-[#B86B27]" />
-              <span>PHASE 04 // 3D BESPOKE SUITE</span>
-            </div>
-            <span className="tracking-wider">{s5.intraProgress}%</span>
+        <div className="w-full max-w-[450px] pointer-events-auto bg-[#FCFAF7]/95 p-6 sm:p-7 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(23,22,20,0.08)]">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.20em] uppercase font-semibold">
+              VESSEL ATELIER
+            </span>
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-wider font-medium">
+              3D Customization
+            </span>
           </div>
 
-          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-2.5">
-            <div
-              className="bg-[#B86B27] h-full transition-all duration-150"
-              style={{ width: `${s5.intraProgress}%` }}
-            />
-          </div>
-
-          <h2 className="font-sans font-light text-xl text-[#171614] tracking-[-0.02em] mb-0.5">
-            Bespoke Vessel Suite<span className="text-[#B86B27]">.</span>
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Bespoke Vessel <span className="font-serif italic font-normal text-[#B86B27]">Suite</span>.
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-snug mb-2.5">
-            Configure glass tint, metallurgy, neck wax dip, and real-time 3D laser engraving.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3.5">
+            Configure glass tint, metallurgy, neck seal, and live laser monogram engraving.
           </p>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {/* 1. Vessel Glass Tint */}
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest">
-                  Vessel Glass Tint
+                  Borosilicate Glass Tint
                 </label>
                 <span className="font-mono text-[9px] text-[#B86B27] font-medium">
                   {glassTints.find((g) => g.id === formula.glassTint)?.name}
@@ -822,7 +740,7 @@ export function ScrollStagesOverlay() {
                     <button
                       key={g.id}
                       onClick={() => handleSelectGlassTint(g.id)}
-                      className={`p-1.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                         isSel
                           ? 'bg-[#171614] text-[#FAF7F0] border-[#171614] shadow-sm'
                           : 'bg-white hover:bg-[#FAF7F0] border-[#171614]/10 text-[#171614]'
@@ -855,20 +773,20 @@ export function ScrollStagesOverlay() {
                   {seals.find((s) => s.id === formula.seal)?.name}
                 </span>
               </div>
-              <div className="flex space-x-1.5 pt-0.5">
+              <div className="flex space-x-1.5">
                 {seals.map((s) => {
                   const isSel = formula.seal === s.id;
                   return (
                     <button
                       key={s.id}
                       onClick={() => handleSelectSeal(s.id)}
-                      className={`relative flex-1 p-1.5 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                      className={`relative flex-1 p-2 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
                         isSel ? 'bg-white border-2 border-[#B86B27] shadow-sm' : 'bg-white/70 hover:bg-white border-[#171614]/10'
                       }`}
                       title={s.name}
                     >
                       <div
-                        className="w-3.5 h-3.5 rounded-full border border-black/10 shadow-inner mb-0.5"
+                        className="w-3.5 h-3.5 rounded-full border border-black/10 shadow-inner mb-1"
                         style={{ backgroundColor: s.hex }}
                       />
                       <span className="font-sans text-[8px] font-medium text-[#171614] text-center leading-none truncate max-w-full">
@@ -893,7 +811,7 @@ export function ScrollStagesOverlay() {
                       <button
                         key={lp.id}
                         onClick={() => handleSelectLabelPaper(lp.id)}
-                        className={`w-full p-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between ${
+                        className={`w-full p-2 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between ${
                           isSel ? 'bg-[#171614] text-[#FAF7F0] border-[#171614]' : 'bg-white hover:bg-[#FAF7F0] border-[#171614]/10 text-[#171614]'
                         }`}
                       >
@@ -916,7 +834,7 @@ export function ScrollStagesOverlay() {
                       <button
                         key={wd.id}
                         onClick={() => handleSelectWaxDip(wd.id)}
-                        className={`w-full p-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center space-x-1.5 ${
+                        className={`w-full p-2 rounded-lg border text-left transition-all cursor-pointer flex items-center space-x-1.5 ${
                           isSel ? 'bg-white border-2 border-[#B86B27] shadow-sm' : 'bg-white/70 hover:bg-white border-[#171614]/10'
                         }`}
                       >
@@ -930,10 +848,10 @@ export function ScrollStagesOverlay() {
             </div>
 
             {/* 4. Real-time 3D Laser Engraving & Cask Year */}
-            <div className="pt-2 border-t border-[#171614]/10 space-y-1.5">
+            <div className="pt-2.5 border-t border-[#171614]/10 space-y-2">
               <div>
                 <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
-                  Custom Reserve Edition Title
+                  Custom Reserve Title
                 </label>
                 <input
                   type="text"
@@ -941,7 +859,7 @@ export function ScrollStagesOverlay() {
                   value={formula.customName}
                   onChange={(e) => scrollStore.setCustomName(e.target.value)}
                   placeholder="e.g. ABHAYJEET RESERVE"
-                  className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium outline-none transition-all"
+                  className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium outline-none transition-all"
                 />
               </div>
 
@@ -956,7 +874,7 @@ export function ScrollStagesOverlay() {
                     value={formula.engravedInitials}
                     onChange={(e) => scrollStore.setEngravedInitials(e.target.value.toUpperCase())}
                     placeholder="AT"
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium font-serif uppercase outline-none transition-all"
+                    className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium font-serif uppercase outline-none transition-all"
                   />
                 </div>
 
@@ -970,34 +888,29 @@ export function ScrollStagesOverlay() {
                     value={formula.batchYear}
                     onChange={(e) => scrollStore.setBatchYear(e.target.value.toUpperCase())}
                     placeholder="2026 // CASK 01"
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] font-mono outline-none transition-all"
+                    className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] font-mono outline-none transition-all"
                   />
                 </div>
-              </div>
-
-              <div className="pt-0.5 text-[9px] font-mono text-[#B86B27] flex items-center space-x-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
-                <span>3D BOTTLE MESH EMBOSSED LIVE AT 60FPS</span>
               </div>
             </div>
           </div>
 
-          {/* Continue Action Pill */}
+          {/* Continue Navigation Button */}
           <button
-            onClick={() => handleJumpToStage(0.94)}
-            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+            onClick={() => handleJumpToStage(0.95)}
+            className="w-full mt-4 py-2.5 px-4 rounded-2xl bg-white hover:bg-[#FAF7F0] border border-[#171614]/10 hover:border-[#B86B27]/40 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer shadow-xs group"
           >
-            <span className="text-[10px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 04 Done</span>
+            <span className="text-[11px] font-sans text-[#6E6961]">Continue formulation</span>
             <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
-              <span>Next: Vault Allocation & Billing</span>
-              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+              <span>Vault Allocation & Billing</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 6: DISPATCH VAULT & AUTHENTIC BILLING (88% - 100%)   */}
+      {/* 6. DISPATCH ALLOCATION & AUTHENTIC BILLING                */}
       {/* ========================================================= */}
       <div
         style={{
@@ -1008,39 +921,18 @@ export function ScrollStagesOverlay() {
         }}
         className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
       >
-        <div
-          data-lenis-prevent="true"
-          onWheel={(e) => e.stopPropagation()}
-          className="w-full max-w-[420px] mr-0 xl:mr-6 pointer-events-auto bg-white/95 p-4 sm:p-5 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-2xl max-h-[90vh] overflow-y-auto"
-        >
-          {/* Phase Telemetry & Scrubber */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
-            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase font-semibold">
-              <ShieldCheck size={11} className="text-[#B86B27]" />
-              <span>PHASE 05 // VAULT ALLOCATION</span>
-            </div>
-            <span className="tracking-wider">{s6.intraProgress}%</span>
-          </div>
-
-          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-2">
-            <div
-              className="bg-[#B86B27] h-full transition-all duration-150"
-              style={{ width: `${s6.intraProgress}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-sans font-light text-lg text-[#171614] tracking-[-0.02em]">
-              Dispatch Allocation<span className="text-[#B86B27]">.</span>
-            </h2>
-
+        <div className="w-full max-w-[450px] pointer-events-auto bg-[#FCFAF7]/95 p-6 sm:p-7 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(23,22,20,0.08)]">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.20em] uppercase font-semibold">
+              DISPATCH ALLOCATION
+            </span>
             {/* Currency Selector */}
             <div className="flex bg-[#171614]/5 rounded-lg p-0.5 border border-[#171614]/10 shrink-0">
               {(['USD', 'EUR', 'GBP'] as const).map((c) => (
                 <button
                   key={c}
                   onClick={() => handleSelectCurrency(c)}
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
+                  className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
                     order.currency === c ? 'bg-white text-[#171614] font-bold shadow-xs' : 'text-[#6E6961] hover:text-[#171614]'
                   }`}
                 >
@@ -1050,15 +942,22 @@ export function ScrollStagesOverlay() {
             </div>
           </div>
 
-          {/* Allocation Quantity Tiers: Compact Segmented Bar */}
-          <div className="grid grid-cols-3 gap-1.5 mb-2">
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
+            Dispatch <span className="font-serif italic font-normal text-[#B86B27]">Allocation</span>.
+          </h2>
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3.5">
+            Zero-proof botanical bottling allocation. Ships in temperature-controlled protective casing.
+          </p>
+
+          {/* Allocation Quantity Tiers */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
             {allocationTiers.map((t) => {
               const isSel = (order.quantity || 1) === t.qty;
               return (
                 <button
                   key={t.qty}
                   onClick={() => handleSelectQuantity(t.qty)}
-                  className={`p-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                  className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                     isSel
                       ? 'bg-[#171614] text-[#FAF7F0] border-[#171614] shadow-sm'
                       : 'bg-white hover:bg-[#FAF7F0] border-[#171614]/10 text-[#171614]'
@@ -1073,8 +972,8 @@ export function ScrollStagesOverlay() {
             })}
           </div>
 
-          {/* Itemized Transparent Luxury Billing Statement: Compact */}
-          <div className="p-2.5 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-2 text-[10px] font-mono space-y-1">
+          {/* Itemized Transparent Luxury Billing Statement */}
+          <div className="p-3.5 rounded-2xl bg-white/70 border border-[#171614]/[0.08] mb-3 text-[10px] font-mono space-y-1.5">
             <div className="flex justify-between items-center text-[#171614]">
               <span className="truncate max-w-[240px]">
                 500mL Elixir ({formula.base?.toUpperCase() || 'YUZU'} + {formula.nootropic?.toUpperCase() || 'ALPHA'} + {formula.modifier?.toUpperCase() || 'ROSEMARY'})
@@ -1101,7 +1000,7 @@ export function ScrollStagesOverlay() {
               </div>
             )}
 
-            <div className="flex justify-between items-center border-t border-[#171614]/15 pt-1.5 text-xs font-sans">
+            <div className="flex justify-between items-center border-t border-[#171614]/15 pt-2 text-xs font-sans">
               <span className="text-[#171614] font-semibold uppercase tracking-wider text-[10px]">Total Investment</span>
               <span className="text-[#B86B27] font-bold text-sm font-mono">
                 {formatPrice(order.totalPrice || currentTier.basePrice + currentTier.engPrice)}
@@ -1111,36 +1010,33 @@ export function ScrollStagesOverlay() {
 
           {/* Member Privilege Code Entry */}
           {!order.confirmed && (
-            <div className="flex items-center space-x-1.5 mb-2">
+            <div className="flex items-center space-x-1.5 mb-3">
               <input
                 type="text"
                 value={promoInput}
                 onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
                 placeholder="VIP ATELIER KEY (e.g. VIP-AETHER)"
-                className="flex-1 px-2.5 py-1 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] font-mono text-[9px] text-[#171614] uppercase outline-none"
+                className="flex-1 px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] font-mono text-[9px] text-[#171614] uppercase outline-none"
               />
               <button
                 type="button"
                 onClick={() => handleApplyPromo()}
-                className="px-2.5 py-1 rounded-lg bg-[#171614]/5 hover:bg-[#171614]/10 border border-[#171614]/10 font-mono text-[9px] text-[#171614] cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-[#171614]/5 hover:bg-[#171614]/10 border border-[#171614]/10 font-mono text-[9px] text-[#171614] cursor-pointer"
               >
                 Apply
               </button>
             </div>
           )}
           {promoFeedback && (
-            <div className={`-mt-1 mb-2 font-mono text-[8px] ${promoFeedback.includes('Authenticated') ? 'text-[#065F46]' : 'text-[#991B1B]'}`}>
+            <div className={`-mt-2 mb-2.5 font-mono text-[9px] ${promoFeedback.includes('Authenticated') ? 'text-[#065F46]' : 'text-[#991B1B]'}`}>
               {promoFeedback}
             </div>
           )}
 
           {order.confirmed ? (
-            /* ======================================================== */
-            /* LUXURY BESPOKE CERTIFICATE OF BOTTLING & PROVENANCE     */
-            /* ======================================================== */
-            <div className="p-3.5 rounded-xl bg-gradient-to-b from-[#FFFDF9] to-[#F5EFE6] border-2 border-[#D4AF37]/50 shadow-md text-left space-y-2 relative overflow-hidden">
-              {/* Certificate Header */}
-              <div className="border-b border-[#D4AF37]/30 pb-1.5 flex items-center justify-between">
+            /* Luxury Certificate of Provenance */
+            <div className="p-4 rounded-2xl bg-gradient-to-b from-[#FFFDF9] to-[#F5EFE6] border-2 border-[#D4AF37]/50 shadow-md text-left space-y-2 relative overflow-hidden">
+              <div className="border-b border-[#D4AF37]/30 pb-2 flex items-center justify-between">
                 <div>
                   <div className="font-mono text-[7px] text-[#B86B27] tracking-[0.25em] uppercase font-bold">
                     OFFICIAL CERTIFICATE OF PROVENANCE
@@ -1154,7 +1050,6 @@ export function ScrollStagesOverlay() {
                 </div>
               </div>
 
-              {/* Certificate Registry Data */}
               <div className="font-mono text-[9px] space-y-0.5 text-[#171614]/80">
                 <div className="flex justify-between">
                   <span className="text-[#6E6961]">SERIAL NO:</span>
@@ -1190,14 +1085,13 @@ export function ScrollStagesOverlay() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-1.5 pt-1">
+              <div className="grid grid-cols-2 gap-2 pt-1.5">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="py-1 px-2 rounded-lg bg-white border border-[#171614]/15 hover:border-[#171614]/30 font-sans text-[10px] text-[#171614] flex items-center justify-center space-x-1 cursor-pointer transition-all"
+                  className="py-1.5 px-3 rounded-xl bg-white border border-[#171614]/15 hover:border-[#171614]/30 font-sans text-[11px] text-[#171614] flex items-center justify-center space-x-1.5 cursor-pointer transition-all"
                 >
-                  <Printer size={11} />
+                  <Printer size={12} />
                   <span>Print Certificate</span>
                 </button>
                 <button
@@ -1206,9 +1100,9 @@ export function ScrollStagesOverlay() {
                     audioSystem.playClick(800);
                     scrollStore.setCustomerOrder({ confirmed: false });
                   }}
-                  className="py-1 px-2 rounded-lg bg-[#171614]/5 hover:bg-[#171614]/10 border border-[#171614]/10 font-sans text-[10px] text-[#171614] flex items-center justify-center space-x-1 cursor-pointer transition-all"
+                  className="py-1.5 px-3 rounded-xl bg-[#171614]/5 hover:bg-[#171614]/10 border border-[#171614]/10 font-sans text-[11px] text-[#171614] flex items-center justify-center space-x-1.5 cursor-pointer transition-all"
                 >
-                  <RotateCcw size={11} />
+                  <RotateCcw size={12} />
                   <span>Modify Vessel</span>
                 </button>
               </div>
@@ -1220,10 +1114,9 @@ export function ScrollStagesOverlay() {
                 audioSystem.playClick(1200);
                 scrollStore.confirmOrder();
               }}
-              className="space-y-1.5"
+              className="space-y-2"
             >
-              {/* Compact 2x2 Grid for Recipient Details */}
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block font-mono text-[8px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
                     Recipient Name
@@ -1234,7 +1127,7 @@ export function ScrollStagesOverlay() {
                     value={order.fullName}
                     onChange={(e) => scrollStore.setCustomerOrder({ fullName: e.target.value })}
                     placeholder="Abhayjeet Tomar"
-                    className="w-full px-2.5 py-1 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                    className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                   />
                 </div>
                 <div>
@@ -1247,12 +1140,12 @@ export function ScrollStagesOverlay() {
                     value={order.address}
                     onChange={(e) => scrollStore.setCustomerOrder({ address: e.target.value })}
                     placeholder="740 Park Avenue"
-                    className="w-full px-2.5 py-1 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                    className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block font-mono text-[8px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
                     City & Postal
@@ -1263,7 +1156,7 @@ export function ScrollStagesOverlay() {
                     value={order.city}
                     onChange={(e) => scrollStore.setCustomerOrder({ city: e.target.value })}
                     placeholder="New York, NY 10021"
-                    className="w-full px-2.5 py-1 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                    className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                   />
                 </div>
                 <div>
@@ -1276,17 +1169,17 @@ export function ScrollStagesOverlay() {
                     value={order.email}
                     onChange={(e) => scrollStore.setCustomerOrder({ email: e.target.value })}
                     placeholder="atelier@aether.luxury"
-                    className="w-full px-2.5 py-1 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                    className="w-full px-3 py-1.5 rounded-xl bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full mt-2 py-2 rounded-xl bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] font-sans text-xs font-medium tracking-tight flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                className="w-full mt-3 py-2.5 rounded-2xl bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] font-sans text-xs font-medium tracking-tight flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
               >
                 <span>Authorize & Dispatch Allocation</span>
-                <ArrowRight size={12} />
+                <ArrowRight size={13} />
               </button>
             </form>
           )}

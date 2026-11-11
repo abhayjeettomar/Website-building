@@ -9,27 +9,26 @@ export interface LiquidPalette {
 
 export const LIQUID_PALETTES: Record<string, LiquidPalette> = {
   yuzu: {
-    deepCore: '#582103',     // Deep roasted botanical citrus core
-    body: '#C25E00',         // Saturated warm liquid amber
-    glow: '#F59E0B',         // Radiant glowing citrine
-    rimHighlight: '#FEF3C7', // Champagne top meniscus light
+    deepCore: '#B45309',     // Rich roasted Tokushima citrus amber core
+    body: '#D97706',         // Saturated warm golden citrine
+    glow: '#F59E0B',         // Radiant luminous amber
+    rimHighlight: '#FEF3C7', // Champagne golden meniscus light
   },
   blood_orange: {
-    deepCore: '#300508',     // Deep torched gentian amaro core
-    body: '#88131B',         // Rich Sicilian ruby
-    glow: '#DC2626',         // Vibrant botanical crimson
-    rimHighlight: '#FEE2E2', // Rosé top meniscus light
+    deepCore: '#9F1239',     // Deep torched Sicilian amaro core
+    body: '#BE123C',         // Saturated botanical crimson ruby
+    glow: '#E11D48',         // Radiant vibrant Moro blood orange
+    rimHighlight: '#FFE4E6', // Rosé glowing meniscus light
   },
   juniper: {
-    deepCore: '#011D17',     // Deep sub-alpine fir core
-    body: '#04523B',         // Crisp forest emerald
-    glow: '#059669',         // Luminous mint tincture
-    rimHighlight: '#D1FAE5', // Glacial top meniscus light
+    deepCore: '#065F46',     // Deep sub-alpine fir core
+    body: '#047857',         // Rich forest emerald elixir
+    glow: '#059669',         // Luminous vibrant alpine tincture
+    rimHighlight: '#D1FAE5', // Glacial glowing meniscus light
   },
 };
 
-// Generates a pure vertical Beer-Lambert volumetric absorption gradient
-// Dark, dense, concentrated at the crystal punt base, radiating warm translucency at the surface
+// Generates an ultra-pure vertical Beer-Lambert volumetric absorption gradient
 export function createLiquidGradientTexture(palette: LiquidPalette): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 128;
@@ -37,12 +36,11 @@ export function createLiquidGradientTexture(palette: LiquidPalette): THREE.Canva
   const ctx = canvas.getContext('2d');
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Pure vertical light absorption (bottom = dense extract, top = luminous meniscus)
   const vGrad = ctx.createLinearGradient(0, 512, 0, 0);
   vGrad.addColorStop(0.0, palette.deepCore);
-  vGrad.addColorStop(0.25, palette.body);
-  vGrad.addColorStop(0.78, palette.glow);
-  vGrad.addColorStop(0.96, palette.rimHighlight);
+  vGrad.addColorStop(0.35, palette.body);
+  vGrad.addColorStop(0.85, palette.glow);
+  vGrad.addColorStop(0.97, palette.rimHighlight);
   vGrad.addColorStop(1.0, palette.glow);
 
   ctx.fillStyle = vGrad;

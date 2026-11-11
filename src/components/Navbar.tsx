@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Volume2, VolumeX, ArrowDown } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { scrollStore } from '../store/scrollStore';
 import { audioSystem } from '../utils/audioSystem';
 
 export function Navbar() {
-  const [activeStage, setActiveStage] = useState(scrollStore.stage);
-  const [isAudioActive, setIsAudioActive] = useState(false);
+  const [isAudioActive, setIsAudioActive] = useState(audioSystem.getIsPlaying());
 
   useEffect(() => {
-    // Only updates state when discrete stage or formulation changes - zero continuous scroll re-render lag!
     const unsub = scrollStore.subscribe(() => {
-      setActiveStage(scrollStore.stage);
+      // Keep in sync with store discrete changes
     });
     return unsub;
   }, []);
@@ -20,28 +18,20 @@ export function Navbar() {
     setIsAudioActive(active);
   };
 
-  const stageLabels: Record<number, string> = {
-    1: 'Vessel Genesis',
-    2: 'Base Distillate',
-    3: 'Botanical Infusion',
-    4: 'Chill Architecture',
-    5: 'Bespoke Engraving',
-    6: 'Dispatch Vault',
-  };
-
   const handleScrollToDispatch = () => {
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
     window.scrollTo({
-      top: document.body.scrollHeight,
+      top: totalHeight * 0.95,
       behavior: 'smooth',
     });
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-40 px-6 sm:px-12 py-4 border-b border-[#171614]/[0.08] bg-[#F7F4EE]/80 backdrop-blur-md transition-all duration-300">
+    <header className="fixed top-0 left-0 w-full z-40 px-6 sm:px-12 py-4 border-b border-[#171614]/[0.08] bg-[#F7F4EE]/85 backdrop-blur-md transition-all duration-300">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between">
         {/* Left: Brand Wordmark */}
         <div className="flex items-center space-x-6">
-          <a href="#" className="flex items-center space-x-2.5 group">
+          <a href="#" className="flex items-center space-x-2.5 group cursor-pointer">
             <span className="font-display font-medium text-base tracking-[0.18em] text-[#171614] group-hover:text-[#B86B27] transition-colors">
               AETHER
             </span>
@@ -55,39 +45,37 @@ export function Navbar() {
           </span>
         </div>
 
-        {/* Center: Stage Index */}
-        <div className="hidden lg:flex items-center space-x-3.5 font-mono text-[11px]">
-          <span className="text-[#171614]/40 uppercase tracking-wider">STAGE</span>
-          <span className="text-[#B86B27] font-medium tracking-widest">
-            0{activeStage} / 06
-          </span>
-          <span className="w-1 h-1 rounded-full bg-[#171614]/20" />
-          <span className="text-[#171614]/75 font-sans font-normal">
-            {stageLabels[activeStage] || 'Genesis'}
-          </span>
+        {/* Center: Clean Editorial Philosophy */}
+        <div className="hidden lg:flex items-center space-x-2 font-mono text-[10px] text-[#171614]/40 tracking-widest uppercase">
+          <span>ZERO-PROOF BOTANICAL ARCHITECTURE</span>
         </div>
 
-        {/* Right: Sound toggle & Direct Scroll To Order Pill */}
-        <div className="flex items-center space-x-3.5">
+        {/* Right: Sound Toggle & Quick Reserve CTA */}
+        <div className="flex items-center space-x-4">
           <button
             onClick={handleToggleAudio}
-            className={`w-7 h-7 rounded-full border transition-all flex items-center justify-center ${
-              isAudioActive
-                ? 'border-[#B86B27] bg-[#B86B27]/10 text-[#B86B27]'
-                : 'border-[#171614]/[0.12] hover:border-[#171614]/40 text-[#171614]/50 hover:text-[#171614]'
-            }`}
-            title={isAudioActive ? 'Ambient Soundscape Active' : 'Enable Ambient Soundscape'}
-            aria-label="Toggle Sound"
+            className="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-[#171614]/15 hover:border-[#B86B27] bg-white/60 hover:bg-white text-xs font-mono text-[#171614] transition-all cursor-pointer shadow-2xs"
+            title={isAudioActive ? 'Mute Atmospheric Audio' : 'Unmute Atmospheric Audio'}
           >
-            {isAudioActive ? <Volume2 size={12} strokeWidth={1.5} /> : <VolumeX size={12} strokeWidth={1.5} />}
+            {isAudioActive ? (
+              <>
+                <Volume2 size={13} className="text-[#B86B27] animate-pulse" />
+                <span className="text-[10px] text-[#B86B27] font-medium tracking-wider">AUDIO ON</span>
+              </>
+            ) : (
+              <>
+                <VolumeX size={13} className="text-[#171614]/40" />
+                <span className="text-[10px] text-[#171614]/40 tracking-wider">MUTED</span>
+              </>
+            )}
           </button>
 
           <button
             onClick={handleScrollToDispatch}
-            className="flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#171614] hover:bg-[#2A2825] text-[#FAF7F0] text-xs font-sans font-medium tracking-tight transition-all duration-200 hover:shadow-sm"
+            className="hidden sm:flex items-center space-x-2 px-4 py-1.5 rounded-full bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] text-xs font-sans font-medium transition-all shadow-sm hover:shadow cursor-pointer"
           >
-            <span>Order Batch</span>
-            <ArrowDown size={11} className="text-[#FAF7F0]/70" />
+            <span>Reserve Batch</span>
+            <span className="text-[#B86B27] text-xs">→</span>
           </button>
         </div>
       </div>

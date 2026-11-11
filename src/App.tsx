@@ -23,17 +23,17 @@ export function App() {
         trigger: '#pinned-scroll-container',
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.5,
+        scrub: true,
         onUpdate: (self) => {
           scrollStore.progress = self.progress;
 
           // Dispatch discrete stage changes ONLY when crossing boundaries
           let currentStage = 1;
           if (self.progress >= 0.88) currentStage = 6;
-          else if (self.progress >= 0.74) currentStage = 5;
-          else if (self.progress >= 0.56) currentStage = 4;
-          else if (self.progress >= 0.36) currentStage = 3;
-          else if (self.progress >= 0.16) currentStage = 2;
+          else if (self.progress >= 0.76) currentStage = 5;
+          else if (self.progress >= 0.58) currentStage = 4;
+          else if (self.progress >= 0.38) currentStage = 3;
+          else if (self.progress >= 0.18) currentStage = 2;
 
           if (currentStage !== scrollStore.stage) {
             scrollStore.stage = currentStage;
