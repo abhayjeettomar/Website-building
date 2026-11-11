@@ -12,11 +12,13 @@ export function useLenisScroll() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // Lenis v1.1.x: autoRaf: false prevents conflicting RAF loops with GSAP ticker
     const lenis = new Lenis({
-      duration: 1.25,
+      autoRaf: false,
+      duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 0.9,
+      wheelMultiplier: 1.0,
       touchMultiplier: 1.5,
     });
 
@@ -52,4 +54,3 @@ export function useLenisScroll() {
     };
   }, []);
 }
-

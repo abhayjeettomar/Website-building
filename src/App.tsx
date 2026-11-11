@@ -16,18 +16,18 @@ export function App() {
   useLenisScroll();
 
   useEffect(() => {
-    // Bind ScrollTrigger to the 750vh master scroll track
+    // Bind ScrollTrigger to the master 750vh scroll track
     // The 3D bottle stays live and interactive across the ENTIRE website from 0% to 100%
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: '#pinned-scroll-container',
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.6,
+        scrub: 0.5,
         onUpdate: (self) => {
           scrollStore.progress = self.progress;
 
-          // Dispatch discrete stage changes for HUD indicators
+          // Dispatch discrete stage changes ONLY when crossing boundaries
           let currentStage = 1;
           if (self.progress >= 0.88) currentStage = 6;
           else if (self.progress >= 0.74) currentStage = 5;
@@ -35,8 +35,10 @@ export function App() {
           else if (self.progress >= 0.36) currentStage = 3;
           else if (self.progress >= 0.16) currentStage = 2;
 
-          scrollStore.stage = currentStage;
-          scrollStore.notify();
+          if (currentStage !== scrollStore.stage) {
+            scrollStore.stage = currentStage;
+            scrollStore.notify(); // Discrete update only!
+          }
         },
       });
     });
@@ -45,11 +47,11 @@ export function App() {
   }, []);
 
   return (
-    <div className="relative bg-[#060607] text-[#F5F3EC] min-h-screen selection:bg-[#E5A958]/20 selection:text-[#E5A958]">
-      {/* 1. Subtle Analog Film Grain Overlay - Unifies 3D & UI */}
+    <div className="relative bg-[#F7F4EE] text-[#171614] min-h-screen selection:bg-[#B86B27]/15 selection:text-[#9E571B]">
+      {/* 1. Subtle Paper Grain Overlay - Unifies 3D & UI */}
       <div className="film-grain" />
 
-      {/* 2. Fixed Technical Navbar (z-40) */}
+      {/* 2. Fixed Atelier Navbar (z-40) */}
       <Navbar />
 
       {/* 3. Optical Backplate Headline ("AETHER" z-10) - Refracted by the 3D bottle */}

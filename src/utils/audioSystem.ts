@@ -1,5 +1,6 @@
 // Self-contained generative ambient soundscape via Web Audio API
-// Synthesizes a meditative 55Hz/110Hz sub-harmonic drone + gentle effervescence filter
+// Synthesizes a meditative 54Hz/108Hz sub-harmonic drone + gentle effervescence filter
+// Includes subtle tactile micro-click, liquid pour, draining, and ice-clink synthesis
 // Zero external MP3 dependencies, zero network latency
 
 class AudioSystem {
@@ -19,7 +20,7 @@ class AudioSystem {
     this.masterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
     this.masterGain.connect(this.ctx.destination);
 
-    // Warm sub-harmonic bass pad (55Hz + 110Hz tuned to 432Hz philosophical scale)
+    // Warm sub-harmonic bass pad (54Hz + 108Hz tuned to 432Hz philosophical scale)
     this.osc1 = this.ctx.createOscillator();
     this.osc1.type = 'sine';
     this.osc1.frequency.setValueAtTime(54.0, this.ctx.currentTime);
@@ -83,16 +84,115 @@ class AudioSystem {
     }
 
     if (this.isPlaying) {
-      // Fade out
       this.masterGain.gain.setTargetAtTime(0.001, this.ctx.currentTime, 0.4);
       this.isPlaying = false;
     } else {
-      // Fade in to gentle ambient level
       this.masterGain.gain.setTargetAtTime(0.18, this.ctx.currentTime, 0.6);
       this.isPlaying = true;
     }
 
     return this.isPlaying;
+  }
+
+  public playClick(pitch = 880) {
+    if (!this.ctx || !this.isPlaying) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(pitch * 0.5, this.ctx.currentTime + 0.05);
+
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.05);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    } catch {
+      // Ignore audio glitches
+    }
+  }
+
+  // Synthesize tactile liquid pouring sound
+  public playPour() {
+    if (!this.ctx || !this.isPlaying) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(680, this.ctx.currentTime + 1.2);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(450, this.ctx.currentTime);
+      filter.frequency.linearRampToValueAtTime(1100, this.ctx.currentTime + 1.2);
+      filter.Q.setValueAtTime(3, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.12, this.ctx.currentTime + 0.2);
+      gain.gain.linearRampToValueAtTime(0.08, this.ctx.currentTime + 0.9);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 1.2);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 1.25);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Synthesize draining / clearing vessel sound
+  public playDrain() {
+    if (!this.ctx || !this.isPlaying) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(540, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.8);
+
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.8);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.85);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Synthesize crystal ice clink sound
+  public playClink() {
+    if (!this.ctx || !this.isPlaying) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(2480, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1600, this.ctx.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.12);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.12);
+    } catch {
+      // Ignore
+    }
   }
 
   public getIsPlaying(): boolean {
@@ -101,4 +201,3 @@ class AudioSystem {
 }
 
 export const audioSystem = new AudioSystem();
-

@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
+import { ContactShadows } from '@react-three/drei';
 import { StudioLighting } from './StudioLighting';
 import { CameraRig } from './CameraRig';
 import { BottleAssembly } from './BottleAssembly';
@@ -24,18 +25,26 @@ export function ExperienceCanvas() {
         }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.2;
+          gl.toneMappingExposure = 1.15;
           gl.outputColorSpace = THREE.SRGBColorSpace;
         }}
-        dpr={[1, Math.min(2, typeof window !== 'undefined' ? window.devicePixelRatio : 2)]}
+        dpr={[1, Math.min(1.5, typeof window !== 'undefined' ? window.devicePixelRatio : 1.5)]}
       >
         <Suspense fallback={null}>
           <StudioLighting />
           <CameraRig />
           <BottleAssembly />
+          {/* Subtle warm contact shadow plinth */}
+          <ContactShadows
+            position={[0, -1.62, 0]}
+            opacity={0.32}
+            scale={4.2}
+            blur={2.2}
+            far={3.5}
+            color="#2A231C"
+          />
         </Suspense>
       </Canvas>
     </div>
   );
 }
-
