@@ -46,34 +46,35 @@ export function App() {
   }, []);
 
   return (
-    <div className="relative bg-[#050506] text-[#F5F5F7] min-h-screen selection:bg-[#F4B860]/20 selection:text-[#F4B860]">
-      {/* 1. Fixed Technical Navbar (z-40) */}
+    <div className="relative bg-[#050506] text-[#F5F5F7] min-h-screen selection:bg-[#E5A958]/20 selection:text-[#E5A958]">
+      {/* 1. Subtle Analog Film Grain Overlay - Unifies 3D & UI */}
+      <div className="film-grain" />
+
+      {/* 2. Fixed Technical Navbar (z-40) */}
       <Navbar />
 
-      {/* 2. Optical Backplate Headline ("AETHER" z-10) - Refracted by the 3D bottle */}
+      {/* 3. Optical Backplate Headline ("AETHER" z-10) - Refracted by the 3D bottle */}
       <HeroBackplate />
 
-      {/* 3. Fixed 100vw x 100vh Three.js WebGL Canvas (z-20) */}
+      {/* 4. Fixed 100vw x 100vh Three.js WebGL Canvas (z-20) */}
       <ExperienceCanvas />
 
-      {/* 4. Fixed Pointers-Events-None Stage HUD Overlays (z-30) */}
+      {/* 5. Fixed Pointer-Events-None Stage HUD Overlays (z-30) */}
       <ScrollStagesOverlay />
 
-      {/* 5. Master 560vh Pinned Scroll Choreography Track */}
-      {/* Provides physical scroll height for Stages 1 through 4 */}
+      {/* 6. Master 560vh Pinned Scroll Choreography Track */}
       <main id="pinned-scroll-container" className="relative w-full h-[560vh] pointer-events-none" />
 
-      {/* 6. Natural-Flow Stage 5 Architectural Section (z-30) */}
+      {/* 7. Natural-Flow Stage 5 Architectural Section (z-30) */}
       <div className="relative z-30 bg-[#050506]">
         <SensoryMatrixBento />
         <Footer />
       </div>
 
-      {/* 7. Slide-Over Allocation Drawer (z-50) */}
+      {/* 8. Slide-Over Allocation Drawer (z-50) */}
       <AllocationDrawer />
     </div>
   );
 }
 
 export default App;
-
