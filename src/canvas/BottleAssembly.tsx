@@ -8,7 +8,9 @@ export function BottleAssembly() {
   const masterBottleRef = useRef<THREE.Group>(null);
   const outerGlassRef = useRef<THREE.Mesh>(null);
   const liquidCoreRef = useRef<THREE.Mesh>(null);
+  const meniscusRef = useRef<THREE.Mesh>(null);
   const pourStreamRef = useRef<THREE.Mesh>(null);
+  const impactRingRef = useRef<THREE.Mesh>(null);
   const bubblesRef = useRef<THREE.InstancedMesh>(null);
   const condensationRef = useRef<THREE.InstancedMesh>(null);
   const capGroupRef = useRef<THREE.Group>(null);
@@ -17,6 +19,7 @@ export function BottleAssembly() {
   const orbitalsGroupRef = useRef<THREE.Group>(null);
 
   const liquidMaterialRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const meniscusMaterialRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   // --- 1. Procedural Label Textures & Live 3D Texture Updater ---
   const { diffuseMap, bumpMap, updateLabel } = useMemo(() => createProceduralLabel(), []);
@@ -51,23 +54,28 @@ export function BottleAssembly() {
     points.push(new THREE.Vector2(0.255, 1.45));
     points.push(new THREE.Vector2(0.18, 1.46));
     points.push(new THREE.Vector2(0.18, 1.38));
-    return new THREE.LatheGeometry(points, 48); // Optimized segment count for high FPS
+    return new THREE.LatheGeometry(points, 48);
   }, []);
 
-  // --- 3. Liquid Core Lathe Geometry (Fills from base punt up) ---
+  // --- 3. Liquid Core Lathe Geometry (Fills precisely from punt up) ---
   const liquidGeometry = useMemo(() => {
     const points: THREE.Vector2[] = [];
     points.push(new THREE.Vector2(0.0, -1.22));
     points.push(new THREE.Vector2(0.35, -1.21));
-    points.push(new THREE.Vector2(0.535, -1.18));
-    points.push(new THREE.Vector2(0.535, 0.0));
-    points.push(new THREE.Vector2(0.535, 0.55));
+    points.push(new THREE.Vector2(0.536, -1.18));
+    points.push(new THREE.Vector2(0.536, 0.0));
+    points.push(new THREE.Vector2(0.536, 0.55));
     points.push(new THREE.Vector2(0.51, 0.62));
     points.push(new THREE.Vector2(0.44, 0.68));
     points.push(new THREE.Vector2(0.28, 0.72));
     points.push(new THREE.Vector2(0.0, 0.71));
     return new THREE.LatheGeometry(points, 48);
   }, []);
+
+  // Meniscus circular liquid surface disc
+  const meniscusGeometry = useMemo(() => new THREE.CircleGeometry(0.534, 48), []);
+  // Fluid impact ripple ring
+  const impactGeometry = useMemo(() => new THREE.RingGeometry(0.025, 0.16, 32), []);
 
   // --- 4. Micro-Bubbles Setup (Optimized for 60-120fps) ---
   const BUBBLE_COUNT = 140;
@@ -80,8 +88,8 @@ export function BottleAssembly() {
       const z = Math.sin(angle) * radius;
       const y = -1.15 + Math.random() * 1.75;
       const scale = 0.008 + Math.random() * 0.016;
-      const speed = 0.16 + Math.random() * 0.32;
-      const wobbleSpeed = 1.5 + Math.random() * 2.5;
+      const speed = 0.18 + Math.random() * 0.32;
+      const wobbleSpeed = 1.8 + Math.random() * 2.5;
       const wobbleRadius = 0.015 + Math.random() * 0.025;
       data.push({ x, y, z, scale, speed, wobbleSpeed, wobbleRadius, seed: Math.random() * 10 });
     }
@@ -89,7 +97,7 @@ export function BottleAssembly() {
   }, []);
 
   // --- 5. Surface Condensation Setup ---
-  const CONDENSATION_COUNT = 320;
+  const CONDENSATION_COUNT = 300;
   const condensationData = useMemo(() => {
     const data = [];
     const phi = (1 + Math.sqrt(5)) / 2;
@@ -131,34 +139,35 @@ export function BottleAssembly() {
 
   const sphereGeometry = useMemo(() => new THREE.SphereGeometry(1, 12, 12), []);
   const yuzuGeometry = useMemo(() => new THREE.CylinderGeometry(0.32, 0.32, 0.025, 24), []);
-  const streamGeometry = useMemo(() => new THREE.CylinderGeometry(0.038, 0.048, 2.2, 16), []);
+  // Tapered liquid stream geometry (thicker at mouth, accelerates thinner)
+  const streamGeometry = useMemo(() => new THREE.CylinderGeometry(0.042, 0.028, 2.2, 24), []);
 
   const dummyMatrix = useMemo(() => new THREE.Matrix4(), []);
   const dummyQuat = useMemo(() => new THREE.Quaternion(), []);
   const dummyScale = useMemo(() => new THREE.Vector3(), []);
   const dummyPos = useMemo(() => new THREE.Vector3(), []);
 
-  // Appetizing botanical color palettes tailored for warm cream contrast
+  // Photorealistic Beer-Lambert botanical colors for warm cream contrast
   const colorPalette = useMemo(() => ({
     yuzu: { 
-      color: new THREE.Color('#D97706'),      // Vibrant charred yuzu amber
-      emissive: new THREE.Color('#78350F'), 
+      color: new THREE.Color('#E68A19'),
+      emissive: new THREE.Color('#451A03'), 
       attenuation: new THREE.Color('#FDE68A') 
     },
     blood_orange: { 
-      color: new THREE.Color('#B91C1C'),      // Smoked blood orange ruby
-      emissive: new THREE.Color('#500724'), 
+      color: new THREE.Color('#A81D24'),
+      emissive: new THREE.Color('#3E0812'), 
       attenuation: new THREE.Color('#FECDD3') 
     },
     juniper: { 
-      color: new THREE.Color('#047857'),      // Deep alpine pine emerald
-      emissive: new THREE.Color('#064E3B'), 
+      color: new THREE.Color('#065F46'),
+      emissive: new THREE.Color('#022C22'), 
       attenuation: new THREE.Color('#A7F3D0') 
     },
   }), []);
 
-  const currentLiquidColor = useRef(new THREE.Color('#D97706'));
-  const currentEmissiveColor = useRef(new THREE.Color('#78350F'));
+  const currentLiquidColor = useRef(new THREE.Color('#E68A19'));
+  const currentEmissiveColor = useRef(new THREE.Color('#451A03'));
 
   // --- 7. Main High-Performance Animation Loop ---
   useFrame((state, delta) => {
@@ -181,55 +190,54 @@ export function BottleAssembly() {
     let bRotY = 0;
     let bRotZ = 0;
 
-    if (p < 0.18) {
-      // STAGE 1: EMPTY VESSEL (Top hero presentation)
-      const t = p / 0.18;
-      bY = THREE.MathUtils.lerp(-0.20, 0.05, t);
+    if (p < 0.16) {
+      // STAGE 1: GENESIS (Clean, perfectly centered hero)
+      const t = p / 0.16;
+      bY = THREE.MathUtils.lerp(-0.16, 0.02, t);
       bX = 0;
-      bRotY = THREE.MathUtils.lerp(-0.35, Math.PI * 0.45, t);
-      bRotZ = THREE.MathUtils.lerp(0.04, -0.02, t);
+      bRotY = THREE.MathUtils.lerp(-0.25, Math.PI * 0.40, t);
+      bRotZ = THREE.MathUtils.lerp(0.03, -0.01, t);
       bRotX = 0.02;
-    } else if (p < 0.38) {
-      // STAGE 2: BASE DISTILLATE FILLING (Bottle shifts to right on desktop)
-      const t = (p - 0.18) / 0.20;
-      bY = THREE.MathUtils.lerp(0.05, 0.10, t);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0, 0.48, t);
-      bRotY = THREE.MathUtils.lerp(Math.PI * 0.45, Math.PI * 1.85, t);
-      bRotZ = THREE.MathUtils.lerp(-0.02, -0.06, t);
-      bRotX = 0.03;
-    } else if (p < 0.58) {
+    } else if (p < 0.36) {
+      // STAGE 2: BASE DISTILLATE POUR (Bottle shifts to right on desktop with comfortable margin)
+      const t = (p - 0.16) / 0.20;
+      bY = THREE.MathUtils.lerp(0.02, 0.06, t);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0, 0.44, t);
+      bRotY = THREE.MathUtils.lerp(Math.PI * 0.40, Math.PI * 1.80, t);
+      bRotZ = THREE.MathUtils.lerp(-0.01, -0.04, t);
+      bRotX = 0.02;
+    } else if (p < 0.56) {
       // STAGE 3: NOOTROPIC INFUSION & EXPLODED FORMULATION
-      const t = (p - 0.38) / 0.20;
-      bY = THREE.MathUtils.lerp(0.10, 0.0, t);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.48, 0, t);
-      bRotY = THREE.MathUtils.lerp(Math.PI * 1.85, Math.PI * 2.85, t);
+      const t = (p - 0.36) / 0.20;
+      bY = THREE.MathUtils.lerp(0.06, 0.0, t);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.44, 0, t);
+      bRotY = THREE.MathUtils.lerp(Math.PI * 1.80, Math.PI * 2.80, t);
       bRotZ = 0;
-      bRotX = THREE.MathUtils.lerp(0.03, 0.15, t);
-    } else if (p < 0.76) {
+      bRotX = THREE.MathUtils.lerp(0.02, 0.12, t);
+    } else if (p < 0.74) {
       // STAGE 4: CHILL & SERVE ARCHITECTURE (Bottle shifts to left)
-      const t = (p - 0.58) / 0.18;
+      const t = (p - 0.56) / 0.18;
       bY = 0.02;
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0, -0.62, t);
-      bRotY = THREE.MathUtils.lerp(Math.PI * 2.85, Math.PI * 3.85, t);
-      bRotZ = -0.04;
-      bRotX = 0.03;
-    } else if (p < 0.90) {
-      // STAGE 5: BESPOKE LABEL PERSONALIZATION (Centered, frontal view)
-      const t = (p - 0.76) / 0.14;
-      bY = 0.05;
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.62, 0, t);
-      bRotY = THREE.MathUtils.lerp(Math.PI * 3.85, Math.PI * 4.0, t);
-      bRotZ = 0;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0, -0.52, t);
+      bRotY = THREE.MathUtils.lerp(Math.PI * 2.80, Math.PI * 3.80, t);
+      bRotZ = -0.03;
       bRotX = 0.02;
+    } else if (p < 0.88) {
+      // STAGE 5: BESPOKE LABEL PERSONALIZATION (Centered, frontal view)
+      const t = (p - 0.74) / 0.14;
+      bY = 0.04;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.52, 0, t);
+      bRotY = THREE.MathUtils.lerp(Math.PI * 3.80, Math.PI * 4.0, t);
+      bRotZ = 0;
+      bRotX = 0.01;
     } else {
       // STAGE 6: DISPATCH VAULT (Bottle on left, address form on right)
-      const t = Math.min(1, (p - 0.90) / 0.10);
-      bY = 0.06;
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0, -0.68, t);
-      // Gentle continuous luxury rotation
-      bRotY = Math.PI * 4.0 + (time * 0.22);
+      const t = Math.min(1, (p - 0.88) / 0.12);
+      bY = 0.05;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0, -0.55, t);
+      bRotY = Math.PI * 4.0 + (time * 0.18);
       bRotZ = -0.02;
-      bRotX = 0.03;
+      bRotX = 0.02;
     }
 
     // Apply smoothed motion
@@ -239,40 +247,74 @@ export function BottleAssembly() {
     masterBottleRef.current.rotation.y = THREE.MathUtils.damp(masterBottleRef.current.rotation.y, bRotY, 4.5, delta);
     masterBottleRef.current.rotation.z = THREE.MathUtils.damp(masterBottleRef.current.rotation.z, bRotZ, 4.5, delta);
 
+    const fLevel = pour.fillLevel;
+    const surfaceY = -1.22 + fLevel * 1.84;
+
     // --- Dynamic Liquid Pouring Stream (Visible during active pour) ---
     if (pourStreamRef.current) {
       const isPouringActive = pour.isPouring;
       pourStreamRef.current.visible = isPouringActive;
       if (isPouringActive) {
-        // Position stream entering from top neck down towards liquid surface
-        const surfaceY = -1.2 + pour.fillLevel * 1.85;
-        const streamHeight = Math.max(0.1, 1.6 - surfaceY);
+        const streamTop = 1.45;
+        const streamHeight = Math.max(0.12, streamTop - surfaceY);
+        // Serpentine turbulence motion
         pourStreamRef.current.scale.set(
-          1 + Math.sin(time * 30) * 0.15,
+          1 + Math.sin(time * 24) * 0.12,
           streamHeight / 2.2,
-          1 + Math.cos(time * 28) * 0.15
+          1 + Math.cos(time * 20) * 0.12
         );
-        pourStreamRef.current.position.y = surfaceY + streamHeight * 0.5;
+        pourStreamRef.current.position.set(
+          Math.sin(time * 26) * 0.008,
+          surfaceY + streamHeight * 0.5,
+          Math.cos(time * 22) * 0.008
+        );
       }
     }
 
-    // --- Dynamic Liquid Core Filling & Slosh ---
+    // --- Impact Ripple Ring (Visible when stream impacts liquid surface) ---
+    if (impactRingRef.current) {
+      const showImpact = pour.isPouring && fLevel > 0.02;
+      impactRingRef.current.visible = showImpact;
+      if (showImpact) {
+        impactRingRef.current.position.y = surfaceY + 0.006;
+        const rippleScale = 1.0 + Math.sin(time * 18) * 0.35;
+        impactRingRef.current.scale.set(rippleScale, rippleScale, 1);
+      }
+    }
+
+    // --- Dynamic Liquid Core Filling & Vortex Drain ---
     if (liquidCoreRef.current) {
-      const fLevel = pour.fillLevel;
       liquidCoreRef.current.visible = fLevel > 0.008;
 
       if (fLevel > 0.008) {
-        // Bottom-anchored vertical fill scaling
-        // When scale.y drops, shift position.y so the base stays planted at -1.22
         const currentScaleY = Math.max(0.001, fLevel);
         liquidCoreRef.current.scale.set(1, currentScaleY, 1);
         liquidCoreRef.current.position.y = -1.22 * (1 - currentScaleY);
 
-        // Responsive liquid slosh based on scroll velocity and pour stream
-        const sloshZ = THREE.MathUtils.clamp(velocity * 0.012, -0.06, 0.06) + (pour.isPouring ? Math.sin(time * 18) * 0.015 : 0);
-        const sloshX = THREE.MathUtils.clamp(velocity * 0.010, -0.05, 0.05) + (pour.isPouring ? Math.cos(time * 16) * 0.015 : 0);
+        // Vortex spin when draining
+        if (pour.isDraining) {
+          liquidCoreRef.current.rotation.y += delta * 4.5;
+        }
+
+        // Fluid inertia slosh responding to velocity and pour stream
+        const sloshZ = THREE.MathUtils.clamp(velocity * 0.010, -0.05, 0.05) + (pour.isPouring ? Math.sin(time * 16) * 0.012 : 0);
+        const sloshX = THREE.MathUtils.clamp(velocity * 0.008, -0.04, 0.04) + (pour.isPouring ? Math.cos(time * 14) * 0.012 : 0);
         liquidCoreRef.current.rotation.z = THREE.MathUtils.damp(liquidCoreRef.current.rotation.z, sloshZ, 5, delta);
         liquidCoreRef.current.rotation.x = THREE.MathUtils.damp(liquidCoreRef.current.rotation.x, sloshX, 5, delta);
+      }
+    }
+
+    // --- Meniscus Fluid Surface Disk (Glistening wet top cap) ---
+    if (meniscusRef.current) {
+      const showMeniscus = fLevel > 0.02;
+      meniscusRef.current.visible = showMeniscus;
+      if (showMeniscus) {
+        const rippleY = (pour.isPouring ? Math.sin(time * 18) * 0.006 : 0);
+        meniscusRef.current.position.y = surfaceY + rippleY;
+        // Inward vortex contraction when draining
+        const meniscusScale = pour.isDraining ? Math.max(0.2, fLevel) : 1.0;
+        meniscusRef.current.scale.set(meniscusScale, meniscusScale, 1);
+        meniscusRef.current.rotation.z += (pour.isDraining ? delta * 4.0 : delta * 0.15);
       }
     }
 
@@ -285,6 +327,11 @@ export function BottleAssembly() {
       liquidMaterialRef.current.color.copy(currentLiquidColor.current);
       liquidMaterialRef.current.emissive.copy(currentEmissiveColor.current);
       liquidMaterialRef.current.attenuationColor.copy(activePalette.attenuation);
+
+      if (meniscusMaterialRef.current) {
+        meniscusMaterialRef.current.color.copy(currentLiquidColor.current);
+        meniscusMaterialRef.current.emissive.copy(currentEmissiveColor.current);
+      }
     }
 
     // --- Cap Medallion Material Transition ---
@@ -301,11 +348,11 @@ export function BottleAssembly() {
     // --- Stage 3: Exploded Mechanical Formulation ---
     let e = 0;
     if (p >= 0.38 && p < 0.48) {
-      e = (p - 0.38) / 0.10; // Levitation separation
+      e = (p - 0.38) / 0.10;
     } else if (p >= 0.48 && p < 0.54) {
-      e = 1.0; // Pinned exploded hold
+      e = 1.0;
     } else if (p >= 0.54 && p < 0.60) {
-      e = 1.0 - (p - 0.54) / 0.06; // Reassemble smoothly
+      e = 1.0 - (p - 0.54) / 0.06;
     } else {
       e = 0;
     }
@@ -330,7 +377,7 @@ export function BottleAssembly() {
       const isLiquidPresent = pour.fillLevel > 0.08;
       bubblesRef.current.visible = isLiquidPresent;
       if (isLiquidPresent) {
-        const maxY = -1.22 + pour.fillLevel * 1.82;
+        const maxY = surfaceY - 0.02;
         const bubbleSpeedMultiplier = (formula.chill === 'ice' ? 1.6 : 1.0) + (pour.isPouring ? 2.5 : 0);
         for (let i = 0; i < BUBBLE_COUNT; i++) {
           const b = bubbleData[i];
@@ -369,7 +416,7 @@ export function BottleAssembly() {
   });
 
   return (
-    <group ref={masterBottleRef} position={[0, -0.20, 0]}>
+    <group ref={masterBottleRef} position={[0, -0.16, 0]}>
       {/* 1. Heavy-Flint Apothecary Borosilicate Glass Vessel */}
       <mesh ref={outerGlassRef} geometry={glassGeometry} castShadow receiveShadow>
         <meshPhysicalMaterial
@@ -388,53 +435,82 @@ export function BottleAssembly() {
         />
       </mesh>
 
-      {/* 2. Live Pouring Stream (Active when selecting/pouring distillation) */}
+      {/* 2. Live Pouring Stream (Tapered natural fluid flow) */}
       <mesh ref={pourStreamRef} geometry={streamGeometry} visible={false}>
         <meshPhysicalMaterial
           ref={liquidMaterialRef}
-          color="#D97706"
-          emissive="#78350F"
-          emissiveIntensity={0.6}
+          color="#E68A19"
+          emissive="#451A03"
+          emissiveIntensity={0.25}
           roughness={0.02}
-          transmission={0.85}
+          transmission={0.88}
+          ior={1.34}
+          thickness={0.65}
           transparent={true}
-          opacity={0.92}
+          opacity={0.95}
+          clearcoat={1.0}
         />
       </mesh>
 
-      {/* 3. Dynamic Liquid Core (Pours and fills from base) */}
+      {/* 3. Surface Impact Ripple Ring */}
+      <mesh ref={impactRingRef} geometry={impactGeometry} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
+        <meshBasicMaterial color="#FFFBEB" transparent opacity={0.65} side={THREE.DoubleSide} />
+      </mesh>
+
+      {/* 4. Photorealistic Liquid Core Volume (Fills from base punt up) */}
       <mesh ref={liquidCoreRef} geometry={liquidGeometry}>
         <meshPhysicalMaterial
-          color="#D97706"
-          emissive="#78350F"
-          emissiveIntensity={0.35}
+          color="#E68A19"
+          emissive="#451A03"
+          emissiveIntensity={0.18}
           transmission={0.88}
-          ior={1.333}
-          roughness={0.05}
+          ior={1.34}
+          roughness={0.025}
           thickness={0.85}
-          attenuationDistance={0.65}
+          attenuationDistance={0.48}
+          attenuationColor="#FDE68A"
           transparent={true}
           opacity={0.96}
+          clearcoat={1.0}
+          clearcoatRoughness={0.02}
         />
       </mesh>
 
-      {/* 4. Micro-Bubbles (Optimized high-specular material) */}
+      {/* 5. Glistening Fluid Surface Meniscus Disc */}
+      <mesh ref={meniscusRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
+        <meshPhysicalMaterial
+          ref={meniscusMaterialRef}
+          color="#E68A19"
+          emissive="#451A03"
+          emissiveIntensity={0.2}
+          roughness={0.015}
+          reflectivity={1.0}
+          clearcoat={1.0}
+          clearcoatRoughness={0.01}
+          transmission={0.75}
+          transparent={true}
+          opacity={0.98}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* 6. Micro-Bubbles (High-specular effervescence) */}
       <instancedMesh
         ref={bubblesRef}
         args={[sphereGeometry, undefined, BUBBLE_COUNT]}
       >
         <meshStandardMaterial
           color="#FFF8E7"
-          roughness={0.05}
+          roughness={0.04}
           metalness={0.1}
-          opacity={0.75}
+          opacity={0.8}
           transparent={true}
-          emissive="#D97706"
-          emissiveIntensity={0.3}
+          emissive="#E68A19"
+          emissiveIntensity={0.25}
         />
       </instancedMesh>
 
-      {/* 5. Surface Condensation (High-performance crystal beads) */}
+      {/* 7. Surface Condensation Droplets */}
       <instancedMesh
         ref={condensationRef}
         args={[sphereGeometry, undefined, CONDENSATION_COUNT]}
@@ -450,7 +526,7 @@ export function BottleAssembly() {
         />
       </instancedMesh>
 
-      {/* 6. Knurled Atelier Cap & Medallion */}
+      {/* 8. Knurled Atelier Cap & Medallion */}
       <group ref={capGroupRef}>
         <mesh position={[0, 1.48, 0]}>
           <cylinderGeometry args={[0.265, 0.265, 0.34, 48]} />
@@ -474,7 +550,7 @@ export function BottleAssembly() {
         </mesh>
       </group>
 
-      {/* 7. Dynamic Procedural Parchment Label */}
+      {/* 9. Dynamic Procedural Parchment Label */}
       <mesh ref={labelMeshRef} position={[0, -0.32, 0]}>
         <cylinderGeometry args={[0.584, 0.584, 1.15, 48, 1, true, -Math.PI * 0.55, Math.PI * 1.1]} />
         <meshStandardMaterial
@@ -487,9 +563,8 @@ export function BottleAssembly() {
         />
       </mesh>
 
-      {/* 8. Floating Botanical & Ice Orbitals */}
+      {/* 10. Floating Botanical & Ice Orbitals */}
       <group ref={orbitalsGroupRef} scale={0}>
-        {/* Hand-cut ice block */}
         <mesh geometry={iceGeometry} position={[0.78, 0.42, 0.35]} rotation={[0.4, 0.6, 0.2]}>
           <meshPhysicalMaterial
             transmission={0.96}
@@ -512,19 +587,17 @@ export function BottleAssembly() {
           />
         </mesh>
 
-        {/* Botanical sphere particulates (Lion's mane / schisandra) */}
         <mesh position={[0.65, -0.45, -0.35]} scale={0.065}>
           <sphereGeometry args={[1, 16, 16]} />
           <meshStandardMaterial color="#C2410C" roughness={0.4} />
         </mesh>
         <mesh position={[-0.58, 0.55, -0.28]} scale={0.055}>
           <sphereGeometry args={[1, 16, 16]} />
-          <meshStandardMaterial color="#D97706" roughness={0.4} />
+          <meshStandardMaterial color="#E68A19" roughness={0.4} />
         </mesh>
 
-        {/* Charred Yuzu slice */}
         <mesh geometry={yuzuGeometry} position={[-0.68, 0.15, 0.42]} rotation={[1.2, 0.4, -0.5]} scale={0.65}>
-          <meshStandardMaterial color="#D97706" roughness={0.35} />
+          <meshStandardMaterial color="#E68A19" roughness={0.35} />
         </mesh>
       </group>
     </group>

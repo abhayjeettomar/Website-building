@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Sparkles, 
-  Flame, 
   Snowflake, 
+  Flame, 
   Check, 
   ArrowRight, 
   ShieldCheck, 
   Droplet,
   Layers,
-  Award,
-  RefreshCw
+  Award
 } from 'lucide-react';
 import { 
   scrollStore, 
@@ -40,12 +38,6 @@ export function ScrollStagesOverlay() {
 
   const handleSelectBase = (baseId: BaseDistillate) => {
     audioSystem.playClick(920);
-    if (pourState.activeBase && pourState.activeBase !== baseId) {
-      audioSystem.playDrain();
-      setTimeout(() => audioSystem.playPour(), 700);
-    } else {
-      audioSystem.playPour();
-    }
     scrollStore.selectBase(baseId);
   };
 
@@ -72,26 +64,26 @@ export function ScrollStagesOverlay() {
     {
       id: 'yuzu',
       name: 'Charred Yuzu & Bergamot',
-      subtitle: 'Cold-pressed mountain citrus, charred rind & wild bergamot bloom',
-      color: '#D97706',
+      subtitle: 'Mountain citrus, charred rind & wild bergamot bloom',
+      color: '#E68A19',
       notes: 'Bright golden amber · Vibrating citrus top-notes · Dry mineral finish',
-      profile: 'Vibrant & Uplifting',
+      profile: 'Uplifting',
     },
     {
       id: 'blood_orange',
       name: 'Smoked Blood Orange & Fig',
       subtitle: 'Torched Sicilian citrus, black mission fig & gentle gentian root',
-      color: '#B91C1C',
+      color: '#A81D24',
       notes: 'Smoked ruby · Rich bittersweet aperitif body · Velvet finish',
-      profile: 'Complex & Contemplative',
+      profile: 'Contemplative',
     },
     {
       id: 'juniper',
       name: 'Wild Juniper & Alpine Pine',
       subtitle: 'Sub-zero vapor-distilled alpine needles & cracked green juniper',
-      color: '#047857',
+      color: '#065F46',
       notes: 'Luminous emerald · Resinous cedar clarity · Crisp mountain rain',
-      profile: 'Crisp & Grounding',
+      profile: 'Grounding',
     },
   ];
 
@@ -172,51 +164,41 @@ export function ScrollStagesOverlay() {
           </button>
         ))}
       </div>
+
       {/* ========================================================= */}
-      {/* STAGE 1: THE EMPTY VESSEL (GENESIS) (0% - 16%) */}
+      {/* STAGE 1: THE EMPTY VESSEL (MINIMALIST GENESIS) (0% - 16%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-16 py-24 flex flex-col justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6 pointer-events-none'
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 py-16 flex flex-col justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          activeStage === 1 ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        {/* Top Classification */}
-        <div className="pt-2 flex justify-between items-center font-mono text-[10px] text-[#171614]/40 tracking-[0.25em] uppercase">
-          <div>APOTHECARY BESPOKE // EDITION 001</div>
-          <div className="hidden sm:block">BOROSILICATE FLINT · 500ML</div>
-        </div>
-
-        {/* Bottom Editorial Anchor */}
-        <div className="flex flex-col md:flex-row justify-between items-end gap-8 pb-4">
-          <div className="max-w-xl">
-            <span className="font-mono text-[11px] text-[#B86B27] tracking-[0.22em] uppercase block mb-3">
-              A PURE VESSEL · AWAITING YOUR FORMULATION
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 max-w-[1440px] w-full mx-auto pb-4">
+          <div className="max-w-lg">
+            <span className="font-mono text-[10px] text-[#B86B27] tracking-[0.24em] uppercase block mb-2.5">
+              BOROSILICATE FLINT · 500ML
             </span>
-            <h1 className="font-sans font-light text-3xl sm:text-5xl lg:text-[3.25rem] text-[#171614] leading-[1.08] tracking-[-0.03em]">
-              Your bespoke elixir,<br />
+            <h1 className="font-sans font-light text-3xl sm:text-5xl text-[#171614] leading-[1.08] tracking-[-0.03em]">
+              A pure vessel,<br />
               <span className="font-serif italic font-normal text-[#171614]">
-                crafted from the ground up
+                awaiting distillation
               </span>
               .
             </h1>
-            <p className="font-sans text-xs sm:text-sm text-[#6E6961] mt-4 max-w-md font-light leading-relaxed">
-              An empty borosilicate flask engineered for zero-proof alchemy. Scroll downward to pour your botanical base, infuse active nootropics, and laser-engrave your private label.
+            <p className="font-sans text-xs sm:text-sm text-[#6E6961] mt-3 font-light leading-relaxed">
+              Optical apothecary glass engineered for zero-proof botanical alchemy. Scroll downward to formulate.
             </p>
           </div>
 
-          <div className="flex flex-col items-start md:items-end space-y-2.5 font-mono text-[11px]">
+          <div className="flex items-center space-x-3">
             <button
               onClick={() => handleJumpToStage(0.24)}
-              className="pointer-events-auto flex items-center space-x-2 text-[#B86B27] hover:text-[#9E571B] transition-all cursor-pointer group"
+              className="flex items-center space-x-2.5 px-4 py-2 rounded-full bg-white/85 hover:bg-white border border-[#171614]/15 hover:border-[#B86B27] text-xs font-sans text-[#171614] transition-all shadow-sm hover:shadow cursor-pointer group"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse group-hover:scale-125 transition-transform" />
-              <span className="underline decoration-[#B86B27]/40 underline-offset-4 tracking-wider">
-                BEGIN FORMULATION ↓
-              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
+              <span>Begin formulation</span>
+              <span className="text-[#B86B27] group-hover:translate-y-0.5 transition-transform">↓</span>
             </button>
-            <div className="text-[#171614]/35 text-[10px] tracking-widest uppercase">
-              STATUS: UNFILLED // 0.0% ABV
-            </div>
           </div>
         </div>
       </div>
@@ -225,82 +207,78 @@ export function ScrollStagesOverlay() {
       {/* STAGE 2: BASE DISTILLATE SELECTION & LIVE POUR (16% - 36%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-16 flex items-center justify-start transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          activeStage === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="max-w-md lg:max-w-lg pointer-events-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-2">
-            <Droplet size={12} className="text-[#B86B27]" />
-            <span>STAGE 02 // BOTANICAL DISTILLATION</span>
+        <div className="w-full max-w-[420px] pointer-events-auto bg-white/80 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+            <Droplet size={11} className="text-[#B86B27]" />
+            <span>STAGE 02 // DISTILLATION BASE</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl sm:text-4xl text-[#171614] tracking-[-0.02em] mb-2">
-            Pour Your Distillate<span className="text-[#B86B27]">.</span>
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
+            Pour Your Base<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs sm:text-sm text-[#6E6961] font-light leading-relaxed mb-4">
-            Select a cold-vacuum fractional distillate. The liquid stream enters the neck and fills the vessel in real time. Switching options smoothly empties and repours the vessel.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3.5">
+            Select a cold-vacuum fractional distillate. The liquid stream pours directly into the vessel. Switching bases empties and repours the bottle.
           </p>
 
           {/* Live Pour Status Feedback */}
-          <div className="mb-5 px-3.5 py-2 rounded-full bg-white/80 border border-[#171614]/[0.08] backdrop-blur-sm flex items-center justify-between text-xs font-mono">
+          <div className="mb-4 px-3 py-1.5 rounded-full bg-[#FAF7F0] border border-[#171614]/[0.08] flex items-center justify-between text-xs font-mono">
             <div className="flex items-center space-x-2">
-              <span className={`w-2 h-2 rounded-full ${pourState.isPouring ? 'bg-[#B86B27] animate-ping' : pourState.fillLevel > 0.8 ? 'bg-[#047857]' : 'bg-[#171614]/30'}`} />
+              <span className={`w-2 h-2 rounded-full ${pourState.isPouring ? 'bg-[#B86B27] animate-ping' : pourState.fillLevel > 0.8 ? 'bg-[#065F46]' : 'bg-[#171614]/30'}`} />
               <span className="text-[#171614]/80 text-[11px]">{pourState.statusText}</span>
             </div>
-            <span className="text-[#B86B27] text-[11px] tracking-wider">
+            <span className="text-[#B86B27] text-[11px] tracking-wider font-medium">
               {Math.round(pourState.fillLevel * 500)}mL / 500mL
             </span>
           </div>
 
           {/* Base Selection Swatches */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {bases.map((base) => {
               const isSelected = formula.base === base.id;
               return (
                 <button
                   key={base.id}
                   onClick={() => handleSelectBase(base.id)}
-                  className={`w-full text-left p-4 rounded-xl transition-all duration-300 relative group cursor-pointer ${
+                  className={`w-full text-left p-3.5 rounded-xl transition-all duration-300 relative group cursor-pointer ${
                     isSelected
                       ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                      : 'bg-white/70 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/20'
+                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/25'
                   }`}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3.5">
-                      {/* Botanical Color Pip */}
+                    <div className="flex items-start space-x-3">
                       <span
-                        className="w-4 h-4 rounded-full mt-0.5 shadow-inner transition-transform group-hover:scale-110 flex-shrink-0"
+                        className="w-3.5 h-3.5 rounded-full mt-0.5 shadow-sm transition-transform group-hover:scale-110 flex-shrink-0"
                         style={{ backgroundColor: base.color }}
                       />
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-sans font-medium text-sm text-[#171614]">
+                          <h3 className="font-sans font-medium text-xs text-[#171614]">
                             {base.name}
                           </h3>
-                          <span className="text-[10px] font-mono text-[#B86B27] px-2 py-0.5 rounded bg-[#B86B27]/10">
+                          <span className="text-[9px] font-mono text-[#B86B27] px-1.5 py-0.5 rounded bg-[#B86B27]/10">
                             {base.profile}
                           </span>
                         </div>
-                        <p className="font-sans text-xs text-[#6E6961] mt-1 font-light leading-snug">
+                        <p className="font-sans text-[11px] text-[#6E6961] mt-0.5 font-light leading-snug">
                           {base.subtitle}
-                        </p>
-                        <p className="font-mono text-[10px] text-[#171614]/50 mt-2">
-                          {base.notes}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right flex-shrink-0 pl-2">
                       {isSelected ? (
-                        <div className="flex items-center space-x-1 text-[#B86B27] font-mono text-[10px]">
-                          <Check size={12} strokeWidth={2.5} />
+                        <div className="flex items-center space-x-1 text-[#B86B27] font-mono text-[9px]">
+                          <Check size={11} strokeWidth={2.5} />
                           <span>ACTIVE</span>
                         </div>
                       ) : (
-                        <span className="text-[#171614]/30 font-mono text-[10px] group-hover:text-[#171614]/60">
-                          SELECT
+                        <span className="text-[#171614]/30 font-mono text-[9px] group-hover:text-[#171614]/60">
+                          POUR
                         </span>
                       )}
                     </div>
@@ -316,34 +294,34 @@ export function ScrollStagesOverlay() {
       {/* STAGE 3: NOOTROPIC INFUSION & EXPLODED FORMULATION (36% - 56%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-16 flex items-center justify-end transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          activeStage === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="max-w-md lg:max-w-lg pointer-events-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-2">
-            <Layers size={12} className="text-[#B86B27]" />
+        <div className="w-full max-w-[420px] pointer-events-auto bg-white/80 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+            <Layers size={11} className="text-[#B86B27]" />
             <span>STAGE 03 // ADAPTOGENIC INFUSION</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl sm:text-4xl text-[#171614] tracking-[-0.02em] mb-2">
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
             Infuse Neuro-Actives<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs sm:text-sm text-[#6E6961] font-light leading-relaxed mb-5">
-            The bottle levitates into an exploded formulation view. Select your bioactive adaptogen stack. Micro-particulates suspend within the botanical matrix.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
+            The vessel elevates into an exploded formulation view. Select your bioactive adaptogen stack.
           </p>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {nootropics.map((item) => {
               const isSelected = formula.nootropic === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectNootropic(item.id)}
-                  className={`w-full text-left p-4 rounded-xl transition-all duration-300 cursor-pointer ${
+                  className={`w-full text-left p-3.5 rounded-xl transition-all duration-300 cursor-pointer ${
                     isSelected
                       ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                      : 'bg-white/70 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/20'
+                      : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08] hover:border-[#171614]/25'
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -352,25 +330,25 @@ export function ScrollStagesOverlay() {
                         <span className="font-serif italic text-xs text-[#B86B27]">
                           {item.roman}.
                         </span>
-                        <h3 className="font-sans font-medium text-sm text-[#171614]">
+                        <h3 className="font-sans font-medium text-xs text-[#171614]">
                           {item.name}
                         </h3>
                       </div>
-                      <div className="font-mono text-[11px] text-[#B86B27] mt-1">
+                      <div className="font-mono text-[10px] text-[#B86B27] mt-0.5">
                         {item.dose}
                       </div>
-                      <p className="font-sans text-xs text-[#6E6961] mt-1.5 font-light leading-snug">
+                      <p className="font-sans text-[11px] text-[#6E6961] mt-1 font-light leading-snug">
                         {item.desc}
                       </p>
                     </div>
 
                     <div className="flex-shrink-0 pl-2">
                       {isSelected ? (
-                        <div className="w-5 h-5 rounded-full bg-[#B86B27] text-white flex items-center justify-center">
-                          <Check size={11} strokeWidth={2.5} />
+                        <div className="w-4 h-4 rounded-full bg-[#B86B27] text-white flex items-center justify-center">
+                          <Check size={10} strokeWidth={2.5} />
                         </div>
                       ) : (
-                        <div className="w-5 h-5 rounded-full border border-[#171614]/20" />
+                        <div className="w-4 h-4 rounded-full border border-[#171614]/20" />
                       )}
                     </div>
                   </div>
@@ -385,65 +363,65 @@ export function ScrollStagesOverlay() {
       {/* STAGE 4: CHILL & SERVE ARCHITECTURE (56% - 74%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-16 flex items-center justify-end transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          activeStage === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="max-w-md lg:max-w-lg pointer-events-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-2">
-            <Snowflake size={12} className="text-[#B86B27]" />
+        <div className="w-full max-w-[420px] pointer-events-auto bg-white/80 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+            <Snowflake size={11} className="text-[#B86B27]" />
             <span>STAGE 04 // SERVE ARCHITECTURE</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl sm:text-4xl text-[#171614] tracking-[-0.02em] mb-2">
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
             Temperature & Chill<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs sm:text-sm text-[#6E6961] font-light leading-relaxed mb-5">
-            Temperature alters aroma volatilization and surface physics. Choose your drinking ceremony to trigger surface condensation beads or pristine ambient transparency.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
+            Temperature transforms aroma volatilization. Choose your drinking ceremony to trigger surface condensation beads or ambient transparency.
           </p>
 
-          <div className="grid grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => handleSelectChill('ice')}
-              className={`p-4 rounded-xl text-left transition-all duration-300 cursor-pointer ${
+              className={`p-3.5 rounded-xl text-left transition-all duration-300 cursor-pointer ${
                 formula.chill === 'ice'
                   ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                  : 'bg-white/70 hover:bg-white border border-[#171614]/[0.08]'
+                  : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-7 h-7 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-3">
-                <Snowflake size={14} />
+              <div className="w-6 h-6 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-2.5">
+                <Snowflake size={13} />
               </div>
-              <h3 className="font-sans font-medium text-sm text-[#171614]">
+              <h3 className="font-sans font-medium text-xs text-[#171614]">
                 Glacial Pour
               </h3>
-              <div className="font-mono text-[10px] text-[#B86B27] mt-0.5">
+              <div className="font-mono text-[9px] text-[#B86B27] mt-0.5">
                 4°C · OVER ARTISANAL ICE
               </div>
-              <p className="font-sans text-[11px] text-[#6E6961] mt-2 font-light leading-snug">
-                Hand-cut ice block clinks into the flask. Glistening surface condensation beads form on exterior glass.
+              <p className="font-sans text-[10px] text-[#6E6961] mt-1.5 font-light leading-snug">
+                Hand-cut ice block clinks into flask. Condensation beads form on glass.
               </p>
             </button>
 
             <button
               onClick={() => handleSelectChill('neat')}
-              className={`p-4 rounded-xl text-left transition-all duration-300 cursor-pointer ${
+              className={`p-3.5 rounded-xl text-left transition-all duration-300 cursor-pointer ${
                 formula.chill === 'neat'
                   ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                  : 'bg-white/70 hover:bg-white border border-[#171614]/[0.08]'
+                  : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-7 h-7 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-3">
-                <Flame size={14} />
+              <div className="w-6 h-6 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-2.5">
+                <Flame size={13} />
               </div>
-              <h3 className="font-sans font-medium text-sm text-[#171614]">
+              <h3 className="font-sans font-medium text-xs text-[#171614]">
                 Cellar Pour
               </h3>
-              <div className="font-mono text-[10px] text-[#B86B27] mt-0.5">
+              <div className="font-mono text-[9px] text-[#B86B27] mt-0.5">
                 18°C · UNCUT & NEAT
               </div>
-              <p className="font-sans text-[11px] text-[#6E6961] mt-2 font-light leading-snug">
-                Pristine optical clarity. Allows volatile fractional terpenes and botanical florals to open without dilution.
+              <p className="font-sans text-[10px] text-[#6E6961] mt-1.5 font-light leading-snug">
+                Pristine optical clarity. Allows volatile botanical florals to open without dilution.
               </p>
             </button>
           </div>
@@ -454,27 +432,27 @@ export function ScrollStagesOverlay() {
       {/* STAGE 5: BESPOKE LABEL PERSONALIZATION (74% - 88%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-16 flex items-center justify-start transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          activeStage === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="max-w-md lg:max-w-lg pointer-events-auto bg-white/80 p-6 sm:p-7 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-2">
-            <Award size={12} className="text-[#B86B27]" />
+        <div className="w-full max-w-[420px] pointer-events-auto bg-white/85 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+            <Award size={11} className="text-[#B86B27]" />
             <span>STAGE 05 // BESPOKE ENGRAVING</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl sm:text-3xl text-[#171614] tracking-[-0.02em] mb-2">
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1.5">
             Laser-Engrave The 3D Label<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
-            Type your private reserve title and initials below. Watch the cylindrical label on the 3D bottle engrave in real time.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3.5">
+            Type your private reserve title and monogram. The 3D label on the bottle engraves in real time.
           </p>
 
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             <div>
-              <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1.5">
-                Custom Edition Title (Displayed on bottle face)
+              <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                Custom Edition Title
               </label>
               <input
                 type="text"
@@ -482,13 +460,13 @@ export function ScrollStagesOverlay() {
                 value={formula.customName}
                 onChange={(e) => scrollStore.setCustomName(e.target.value)}
                 placeholder="e.g. ABHAYJEET RESERVE"
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-sm text-[#171614] font-medium outline-none transition-all"
+                className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium outline-none transition-all"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1.5">
+                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
                   Monogram Initials
                 </label>
                 <input
@@ -497,20 +475,20 @@ export function ScrollStagesOverlay() {
                   value={formula.engravedInitials}
                   onChange={(e) => scrollStore.setEngravedInitials(e.target.value.toUpperCase())}
                   placeholder="AT"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-sm text-[#171614] font-medium font-serif uppercase outline-none transition-all"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium font-serif uppercase outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1.5">
+                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
                   Medallion Foil
                 </label>
-                <div className="flex space-x-2 pt-1">
+                <div className="flex space-x-2 pt-0.5">
                   {seals.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => handleSelectSeal(s.id)}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform cursor-pointer ${
+                      className={`w-7 h-7 rounded-full border-2 transition-transform cursor-pointer ${
                         formula.seal === s.id ? 'border-[#B86B27] scale-110 shadow-sm' : 'border-transparent hover:scale-105'
                       }`}
                       style={{ backgroundColor: s.hex }}
@@ -521,7 +499,7 @@ export function ScrollStagesOverlay() {
               </div>
             </div>
 
-            <div className="pt-2 text-[11px] font-mono text-[#B86B27] flex items-center space-x-2">
+            <div className="pt-1.5 text-[10px] font-mono text-[#B86B27] flex items-center space-x-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
               <span>3D TEXTURE EMBOSSED IN REAL TIME</span>
             </div>
@@ -533,25 +511,25 @@ export function ScrollStagesOverlay() {
       {/* STAGE 6: DISPATCH VAULT & ADDRESS FORM (88% - 100%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-16 flex items-center justify-end transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 6 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
+        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          activeStage === 6 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
         }`}
       >
-        <div className="max-w-md lg:max-w-lg pointer-events-auto bg-white/85 p-6 sm:p-7 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-2">
-            <ShieldCheck size={12} className="text-[#B86B27]" />
+        <div className="w-full max-w-[420px] pointer-events-auto bg-white/85 p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1.5">
+            <ShieldCheck size={11} className="text-[#B86B27]" />
             <span>STAGE 06 // VAULT ALLOCATION</span>
           </div>
 
-          <h2 className="font-sans font-light text-2xl sm:text-3xl text-[#171614] tracking-[-0.02em] mb-1">
+          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
             Dispatch Your Batch<span className="text-[#B86B27]">.</span>
           </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-4">
-            Nitrogen-purged packaging, signed laboratory certificate, and direct courier dispatch.
+          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
+            Nitrogen-purged packaging, signed certificate, and direct courier dispatch.
           </p>
 
           {/* Formulation Assay Receipt */}
-          <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-4 text-xs font-mono space-y-1.5">
+          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-3 text-xs font-mono space-y-1">
             <div className="flex justify-between">
               <span className="text-[#171614]/50">DISTILLATE:</span>
               <span className="text-[#171614] font-medium uppercase">{formula.base || 'YUZU'}</span>
@@ -567,14 +545,14 @@ export function ScrollStagesOverlay() {
           </div>
 
           {order.confirmed ? (
-            <div className="p-5 rounded-xl bg-[#047857]/10 border border-[#047857]/30 text-center space-y-2">
-              <div className="w-9 h-9 rounded-full bg-[#047857] text-white flex items-center justify-center mx-auto">
-                <Check size={18} />
+            <div className="p-4 rounded-xl bg-[#065F46]/10 border border-[#065F46]/30 text-center space-y-2">
+              <div className="w-8 h-8 rounded-full bg-[#065F46] text-white flex items-center justify-center mx-auto">
+                <Check size={16} />
               </div>
-              <h3 className="font-sans font-medium text-base text-[#047857]">
+              <h3 className="font-sans font-medium text-sm text-[#065F46]">
                 Allocation Authenticated
               </h3>
-              <div className="font-mono text-xs text-[#047857] tracking-widest">
+              <div className="font-mono text-[11px] text-[#065F46] tracking-widest">
                 SERIAL: {order.serialNumber}
               </div>
               <p className="font-sans text-xs text-[#6E6961]">
@@ -588,11 +566,11 @@ export function ScrollStagesOverlay() {
                 audioSystem.playClick(1200);
                 scrollStore.confirmOrder();
               }}
-              className="space-y-3"
+              className="space-y-2.5"
             >
               <div>
-                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
-                  Full Name / Allocation Recipient
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                  Recipient Name
                 </label>
                 <input
                   required
@@ -600,12 +578,12 @@ export function ScrollStagesOverlay() {
                   value={order.fullName}
                   onChange={(e) => scrollStore.setCustomerOrder({ fullName: e.target.value })}
                   placeholder="Abhayjeet Tomar"
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
                   Delivery Destination
                 </label>
                 <input
@@ -614,13 +592,13 @@ export function ScrollStagesOverlay() {
                   value={order.address}
                   onChange={(e) => scrollStore.setCustomerOrder({ address: e.target.value })}
                   placeholder="740 Park Avenue, Residence 4B"
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
                     City & Postal
                   </label>
                   <input
@@ -629,12 +607,12 @@ export function ScrollStagesOverlay() {
                     value={order.city}
                     onChange={(e) => scrollStore.setCustomerOrder({ city: e.target.value })}
                     placeholder="New York, NY 10021"
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                    className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] text-[#171614]/60 uppercase tracking-widest mb-1">
-                    Email Notification
+                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
+                    Email
                   </label>
                   <input
                     required
@@ -642,17 +620,17 @@ export function ScrollStagesOverlay() {
                     value={order.email}
                     onChange={(e) => scrollStore.setCustomerOrder({ email: e.target.value })}
                     placeholder="atelier@aether.luxury"
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
+                    className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] outline-none"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full mt-2 py-3 rounded-xl bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] font-sans text-xs font-medium tracking-tight flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                className="w-full mt-2 py-2.5 rounded-xl bg-[#171614] hover:bg-[#2B2926] text-[#FAF7F0] font-sans text-xs font-medium tracking-tight flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
               >
                 <span>Authorize & Dispatch Allocation</span>
-                <ArrowRight size={13} />
+                <ArrowRight size={12} />
               </button>
             </form>
           )}

@@ -1,5 +1,6 @@
 // Mutable singleton store for high-performance 60fps/120fps animation loop
 // Handles both continuous scroll metrics and interactive bespoke mocktail alchemy state
+import { audioSystem } from '../utils/audioSystem';
 
 export type BaseDistillate = 'yuzu' | 'blood_orange' | 'juniper';
 export type NootropicStack = 'alpha' | 'social' | 'euphoria';
@@ -112,29 +113,41 @@ export const scrollStore: ScrollStore = {
     this.listeners.forEach((fn) => fn());
   },
 
-  // Creative liquid pouring and draining state machine
+  // Robust, bug-free liquid pouring and draining state machine
   selectBase(base: BaseDistillate) {
-    if (this.pour.activeBase === base && this.pour.fillLevel > 0.8) {
-      return; // Already poured this base
+    const p = this.pour;
+
+    // If already active or queued for this base and not currently draining, ignore duplicate click
+    if ((p.activeBase === base || p.pendingBase === base) && !p.isDraining) {
+      return;
     }
 
-    if (!this.pour.activeBase || this.pour.fillLevel < 0.05) {
+    // If currently draining, smoothly switch the pending destination
+    if (p.isDraining) {
+      p.pendingBase = base;
+      this.notify();
+      return;
+    }
+
+    if (!p.activeBase || p.fillLevel < 0.05) {
       // Bottle is empty -> Pour directly
       this.formula.base = base;
-      this.pour.activeBase = base;
-      this.pour.pendingBase = null;
-      this.pour.isPouring = true;
-      this.pour.isDraining = false;
-      this.pour.targetFillLevel = 1.0;
-      this.pour.statusText = 'Infusing distillation stream...';
+      p.activeBase = base;
+      p.pendingBase = null;
+      p.isPouring = true;
+      p.isDraining = false;
+      p.targetFillLevel = 1.0;
+      p.statusText = 'Infusing distillation stream...';
+      audioSystem.playPour();
       this.notify();
     } else {
       // Bottle already has liquid -> Drain smoothly first, then pour the new selection
-      this.pour.pendingBase = base;
-      this.pour.isDraining = true;
-      this.pour.isPouring = false;
-      this.pour.targetFillLevel = 0.0;
-      this.pour.statusText = 'Clearing vessel for new distillation...';
+      p.pendingBase = base;
+      p.isDraining = true;
+      p.isPouring = false;
+      p.targetFillLevel = 0.0;
+      p.statusText = 'Clearing vessel for new distillation...';
+      audioSystem.playDrain();
       this.notify();
     }
   },
@@ -145,24 +158,26 @@ export const scrollStore: ScrollStore = {
     let needsNotification = false;
 
     // Gracefully commence initial pour if user scrolls into Stage 2 without manual click
-    if (this.progress >= 0.20 && !this.formula.base && !p.isPouring && !p.isDraining) {
+    if (this.progress >= 0.22 && !this.formula.base && !p.isPouring && !p.isDraining && !p.pendingBase) {
       this.selectBase('yuzu');
     }
 
     if (p.isDraining) {
       // Drain smoothly down to 0
-      p.fillLevel = Math.max(0, p.fillLevel - delta * 1.6);
+      p.fillLevel = Math.max(0, p.fillLevel - delta * 1.5);
       if (p.fillLevel <= 0.01) {
         p.fillLevel = 0.0;
         p.isDraining = false;
-        // Now switch formula base to pending base and commence pour
+        // Switch formula base to pending base and commence pour
         if (p.pendingBase) {
-          this.formula.base = p.pendingBase;
-          p.activeBase = p.pendingBase;
+          const nextBase = p.pendingBase;
+          this.formula.base = nextBase;
+          p.activeBase = nextBase;
           p.pendingBase = null;
           p.isPouring = true;
           p.targetFillLevel = 1.0;
           p.statusText = 'Infusing fresh distillation stream...';
+          audioSystem.playPour();
           needsNotification = true;
         } else {
           p.statusText = 'Vessel Empty';
@@ -170,8 +185,8 @@ export const scrollStore: ScrollStore = {
         }
       }
     } else if (p.isPouring) {
-      // Rise smoothly up to 1.0
-      p.fillLevel = Math.min(1.0, p.fillLevel + delta * 1.1);
+      // Rise smoothly up to 1.0 with fluid easing
+      p.fillLevel = Math.min(1.0, p.fillLevel + delta * 1.0);
       if (p.fillLevel >= 0.99) {
         p.fillLevel = 1.0;
         p.isPouring = false;
