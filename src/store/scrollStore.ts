@@ -101,10 +101,10 @@ export const scrollStore: ScrollStore = {
   },
 
   order: {
-    fullName: '',
-    address: '',
-    city: '',
-    email: '',
+    fullName: 'Abhayjeet Tomar',
+    address: '740 Park Avenue, Residence 4B',
+    city: 'New York, NY 10021',
+    email: 'atelier@aether.luxury',
     confirmed: false,
     serialNumber: '',
   },
@@ -249,9 +249,19 @@ export const scrollStore: ScrollStore = {
     const p = this.pour;
     let needsNotification = false;
 
-    // Automatic smooth initial pour when user first enters Stage 2
+    // Automatic smooth proportional pours as user scrolls through stages (if not manually chosen)
     if (this.progress >= 0.18 && !this.formula.base && !p.isPouring && !p.isDraining && !p.pendingBase && p.fillLevel === 0) {
       this.selectBase('yuzu');
+      return;
+    }
+
+    if (this.progress >= 0.38 && !this.formula.nootropic && !p.isPouring && !p.isDraining) {
+      this.selectNootropic('alpha');
+      return;
+    }
+
+    if (this.progress >= 0.58 && !this.formula.modifier && !p.isPouring && !p.isDraining) {
+      this.selectModifier('rosemary');
       return;
     }
 

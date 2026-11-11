@@ -21,20 +21,35 @@ import {
 import { audioSystem } from '../utils/audioSystem';
 
 export function ScrollStagesOverlay() {
-  const [activeStage, setActiveStage] = useState(scrollStore.stage);
+  const [scrollProgress, setScrollProgress] = useState(scrollStore.progress);
   const [formula, setFormula] = useState({ ...scrollStore.formula });
   const [order, setOrder] = useState({ ...scrollStore.order });
   const [pourState, setPourState] = useState({ ...scrollStore.pour });
 
   useEffect(() => {
-    // Strictly listens to discrete events (zero continuous scroll re-renders!)
+    // Listen to discrete store updates
     const unsub = scrollStore.subscribe(() => {
-      setActiveStage(scrollStore.stage);
       setFormula({ ...scrollStore.formula });
       setOrder({ ...scrollStore.order });
       setPourState({ ...scrollStore.pour });
     });
     return unsub;
+  }, []);
+
+  // High-performance RAF listener for smooth continuous card interpolation and scrubber bars
+  useEffect(() => {
+    let animId: number;
+    let lastP = -1;
+    const checkScroll = () => {
+      const curP = scrollStore.progress;
+      if (Math.abs(curP - lastP) > 0.002) {
+        lastP = curP;
+        setScrollProgress(curP);
+      }
+      animId = requestAnimationFrame(checkScroll);
+    };
+    animId = requestAnimationFrame(checkScroll);
+    return () => cancelAnimationFrame(animId);
   }, []);
 
   const handleSelectBase = (baseId: BaseDistillate) => {
@@ -160,6 +175,61 @@ export function ScrollStagesOverlay() {
     });
   };
 
+  // Continuous Spatial Interpolation: Computes opacity, translateY, and intra-stage progress %
+  const getStageStyle = (enterStart: number, enterEnd: number, exitStart: number, exitEnd: number) => {
+    const p = scrollProgress;
+    if (p < enterStart || p > exitEnd) {
+      return {
+        opacity: 0,
+        transform: `translateY(${p < enterStart ? 28 : -28}px)`,
+        pointerEvents: 'none' as const,
+        display: 'none',
+        intraProgress: p < enterStart ? 0 : 100,
+      };
+    }
+
+    let opacity = 1;
+    let translateY = 0;
+
+    if (p < enterEnd && enterEnd > enterStart) {
+      const t = (p - enterStart) / (enterEnd - enterStart);
+      opacity = t;
+      translateY = (1 - t) * 28;
+    } else if (p > exitStart && exitEnd > exitStart) {
+      const t = (p - exitStart) / (exitEnd - exitStart);
+      opacity = 1 - t;
+      translateY = -t * 28;
+    }
+
+    const intra = Math.min(
+      100,
+      Math.max(0, Math.round(((p - enterStart) / (exitEnd - enterStart)) * 100))
+    );
+
+    return {
+      opacity,
+      transform: `translateY(${translateY.toFixed(1)}px)`,
+      pointerEvents: opacity > 0.35 ? ('auto' as const) : ('none' as const),
+      display: opacity > 0.01 ? 'flex' : 'none',
+      intraProgress: intra,
+    };
+  };
+
+  const s1 = getStageStyle(0.00, 0.00, 0.11, 0.17);
+  const s2 = getStageStyle(0.13, 0.18, 0.31, 0.37);
+  const s3 = getStageStyle(0.33, 0.38, 0.51, 0.57);
+  const s4 = getStageStyle(0.53, 0.58, 0.70, 0.75);
+  const s5 = getStageStyle(0.71, 0.76, 0.85, 0.89);
+  const s6 = getStageStyle(0.86, 0.91, 1.00, 1.00);
+
+  // Active stage number for navigation rail
+  let activeRailStage = 1;
+  if (scrollProgress >= 0.88) activeRailStage = 6;
+  else if (scrollProgress >= 0.74) activeRailStage = 5;
+  else if (scrollProgress >= 0.56) activeRailStage = 4;
+  else if (scrollProgress >= 0.36) activeRailStage = 3;
+  else if (scrollProgress >= 0.16) activeRailStage = 2;
+
   return (
     <div className="fixed inset-0 w-screen h-screen z-30 pointer-events-none overflow-hidden select-none text-[#171614]">
       {/* Right-Side Vertical Step Navigation Rail (Desktop) */}
@@ -172,7 +242,7 @@ export function ScrollStagesOverlay() {
           >
             <span
               className={`font-mono text-[10px] tracking-wider transition-all duration-300 ${
-                activeStage === s.num
+                activeRailStage === s.num
                   ? 'text-[#B86B27] font-medium opacity-100 translate-x-0'
                   : 'text-[#171614]/30 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0'
               }`}
@@ -181,7 +251,7 @@ export function ScrollStagesOverlay() {
             </span>
             <span
               className={`rounded-full transition-all duration-300 ${
-                activeStage === s.num
+                activeRailStage === s.num
                   ? 'w-2.5 h-2.5 bg-[#B86B27] ring-4 ring-[#B86B27]/15'
                   : 'w-1.5 h-1.5 bg-[#171614]/20 group-hover:bg-[#171614]/60'
               }`}
@@ -191,12 +261,16 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 1: GENESIS (RADICAL LUXURY MINIMALISM) (0% - 16%) */}
+      {/* STAGE 1: GENESIS (RADICAL LUXURY MINIMALISM) (0% - 16%)   */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 py-16 flex flex-col justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 1 ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none hidden'
-        }`}
+        style={{
+          opacity: s1.opacity,
+          transform: s1.transform,
+          pointerEvents: s1.pointerEvents,
+          display: s1.display,
+        }}
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 py-16 flex flex-col justify-end transition-transform duration-100 ease-out"
       >
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 max-w-[1440px] w-full mx-auto pb-4">
           <div className="max-w-lg">
@@ -211,14 +285,14 @@ export function ScrollStagesOverlay() {
               .
             </h1>
             <p className="font-sans text-xs sm:text-sm text-[#6E6961] mt-3 font-light leading-relaxed">
-              Optical apothecary glass engineered for zero-proof botanical alchemy. Scroll downward to formulate.
+              Optical apothecary glass engineered for zero-proof botanical alchemy. Scroll downward or begin formulation below.
             </p>
           </div>
 
           <div className="flex items-center space-x-3">
             <button
               onClick={() => handleJumpToStage(0.24)}
-              className="flex items-center space-x-2.5 px-4 py-2 rounded-full bg-white/85 hover:bg-white border border-[#171614]/15 hover:border-[#B86B27] text-xs font-sans text-[#171614] transition-all shadow-sm hover:shadow cursor-pointer group"
+              className="flex items-center space-x-2.5 px-4 py-2.5 rounded-full bg-white/90 hover:bg-white border border-[#171614]/15 hover:border-[#B86B27] text-xs font-sans text-[#171614] transition-all shadow-sm hover:shadow cursor-pointer group"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
               <span>Begin formulation</span>
@@ -229,24 +303,39 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 2: BASE DISTILLATE (320mL / 64%) (16% - 36%) */}
+      {/* STAGE 2: BASE DISTILLATE (320mL / 64%) (16% - 36%)        */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
-        }`}
+        style={{
+          opacity: s2.opacity,
+          transform: s2.transform,
+          pointerEvents: s2.pointerEvents,
+          display: s2.display,
+        }}
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
-            <Droplet size={11} className="text-[#B86B27]" />
-            <span>STEP 01 // FOUNDATION DISTILLATION (320ML)</span>
+          {/* Phase Telemetry & Scrubber */}
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
+            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
+              <Droplet size={11} className="text-[#B86B27]" />
+              <span>PHASE 01 // FOUNDATION</span>
+            </div>
+            <span className="tracking-wider">{s2.intraProgress}%</span>
+          </div>
+
+          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-3">
+            <div
+              className="bg-[#B86B27] h-full transition-all duration-150"
+              style={{ width: `${s2.intraProgress}%` }}
+            />
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
             Primary Distillate<span className="text-[#B86B27]">.</span>
           </h2>
           <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
-            The foundation aromatic carrier extracted via low-temperature rotary vacuum. Fills 320mL of the 500mL vessel.
+            The foundation aromatic carrier extracted via cold rotary vacuum. Fills 320mL (64%) of the vessel.
           </p>
 
           {/* Factual Volume Telemetry Bar */}
@@ -312,28 +401,55 @@ export function ScrollStagesOverlay() {
               );
             })}
           </div>
+
+          {/* Continue Action Pill */}
+          <button
+            onClick={() => handleJumpToStage(0.45)}
+            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <span className="text-[11px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 01 Done</span>
+            <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
+              <span>Next: Adaptogen Infusion (+80mL)</span>
+              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 3: BIOACTIVE NOOTROPIC (+80mL = 400mL) (36% - 56%) */}
+      {/* STAGE 3: BIOACTIVE NOOTROPIC (+80mL = 400mL) (36% - 56%)   */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
-        }`}
+        style={{
+          opacity: s3.opacity,
+          transform: s3.transform,
+          pointerEvents: s3.pointerEvents,
+          display: s3.display,
+        }}
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
-            <Layers size={11} className="text-[#B86B27]" />
-            <span>STEP 02 // BIOACTIVE NOOTROPIC (+80ML)</span>
+          {/* Phase Telemetry & Scrubber */}
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
+            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
+              <Layers size={11} className="text-[#B86B27]" />
+              <span>PHASE 02 // ADAPTOGEN INFUSION</span>
+            </div>
+            <span className="tracking-wider">{s3.intraProgress}%</span>
+          </div>
+
+          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-3">
+            <div
+              className="bg-[#B86B27] h-full transition-all duration-150"
+              style={{ width: `${s3.intraProgress}%` }}
+            />
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
             Infuse Clinical Actives<span className="text-[#B86B27]">.</span>
           </h2>
           <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
-            Dual-extract adaptogens. Bottle elevates into exploded view; volume rises to 400mL.
+            Dual-extract adaptogens. Vessel elevates into architectural exploded view; volume rises to 400mL (80%).
           </p>
 
           {/* Volume Bar */}
@@ -391,6 +507,18 @@ export function ScrollStagesOverlay() {
               );
             })}
           </div>
+
+          {/* Continue Action Pill */}
+          <button
+            onClick={() => handleJumpToStage(0.65)}
+            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <span className="text-[11px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 02 Done</span>
+            <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
+              <span>Next: Modifier Cordial & Chill</span>
+              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </button>
         </div>
       </div>
 
@@ -398,14 +526,29 @@ export function ScrollStagesOverlay() {
       {/* STAGE 4: MODIFIER CORDIAL & CHILL (+100mL = 500mL) (56% - 74%) */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
-        }`}
+        style={{
+          opacity: s4.opacity,
+          transform: s4.transform,
+          pointerEvents: s4.pointerEvents,
+          display: s4.display,
+        }}
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
-            <Sparkles size={11} className="text-[#B86B27]" />
-            <span>STEP 03 // MODIFIER CORDIAL & CHILL (100ML)</span>
+          {/* Phase Telemetry & Scrubber */}
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
+            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
+              <Sparkles size={11} className="text-[#B86B27]" />
+              <span>PHASE 03 // ARCHITECTURE & CHILL</span>
+            </div>
+            <span className="tracking-wider">{s4.intraProgress}%</span>
+          </div>
+
+          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-3">
+            <div
+              className="bg-[#B86B27] h-full transition-all duration-150"
+              style={{ width: `${s4.intraProgress}%` }}
+            />
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
@@ -455,28 +598,28 @@ export function ScrollStagesOverlay() {
           </div>
 
           {/* 40mL Chill Architecture */}
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => handleSelectChill('glacial')}
-              className={`p-3 rounded-xl text-left transition-all duration-300 cursor-pointer ${
+              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                 formula.chill === 'glacial'
-                  ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                  : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
+                  ? 'bg-white border-2 border-[#9CE0FF] shadow-sm'
+                  : 'bg-white/60 hover:bg-white border-[#171614]/[0.08]'
               }`}
             >
-              <div className="w-5 h-5 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-1.5">
+              <div className="w-5 h-5 rounded-full bg-[#9CE0FF]/20 text-[#0284C7] flex items-center justify-center mb-1.5">
                 <Snowflake size={12} />
               </div>
               <h4 className="font-sans font-medium text-xs text-[#171614]">Glacial Serve</h4>
-              <p className="font-mono text-[9px] text-[#B86B27] mt-0.5">4°C · Over Artisanal Ice</p>
+              <p className="font-mono text-[9px] text-[#B86B27] mt-0.5">-4°C · Hand-Cut Ice (+40mL)</p>
             </button>
 
             <button
               onClick={() => handleSelectChill('cellar')}
-              className={`p-3 rounded-xl text-left transition-all duration-300 cursor-pointer ${
+              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                 formula.chill === 'cellar'
-                  ? 'bg-white shadow-md border-2 border-[#B86B27]'
-                  : 'bg-white/60 hover:bg-white border border-[#171614]/[0.08]'
+                  ? 'bg-white border-2 border-[#B86B27] shadow-sm'
+                  : 'bg-white/60 hover:bg-white border-[#171614]/[0.08]'
               }`}
             >
               <div className="w-5 h-5 rounded-full bg-[#B86B27]/10 text-[#B86B27] flex items-center justify-center mb-1.5">
@@ -486,21 +629,48 @@ export function ScrollStagesOverlay() {
               <p className="font-mono text-[9px] text-[#B86B27] mt-0.5">18°C · Uncut & Neat</p>
             </button>
           </div>
+
+          {/* Continue Action Pill */}
+          <button
+            onClick={() => handleJumpToStage(0.80)}
+            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <span className="text-[11px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 03 Done</span>
+            <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
+              <span>Next: Engrave 3D Label</span>
+              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 5: BESPOKE LABEL PERSONALIZATION (74% - 88%) */}
+      {/* STAGE 5: BESPOKE LABEL PERSONALIZATION (74% - 88%)         */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
-        }`}
+        style={{
+          opacity: s5.opacity,
+          transform: s5.transform,
+          pointerEvents: s5.pointerEvents,
+          display: s5.display,
+        }}
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
-            <Award size={11} className="text-[#B86B27]" />
-            <span>STEP 04 // LASER-ENGRAVED PERSONALIZATION</span>
+          {/* Phase Telemetry & Scrubber */}
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
+            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
+              <Award size={11} className="text-[#B86B27]" />
+              <span>PHASE 04 // 3D LASER ENGRAVING</span>
+            </div>
+            <span className="tracking-wider">{s5.intraProgress}%</span>
+          </div>
+
+          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-3">
+            <div
+              className="bg-[#B86B27] h-full transition-all duration-150"
+              style={{ width: `${s5.intraProgress}%` }}
+            />
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
@@ -565,21 +735,48 @@ export function ScrollStagesOverlay() {
               <span>3D TEXTURE EMBOSSED IN REAL TIME</span>
             </div>
           </div>
+
+          {/* Continue Action Pill */}
+          <button
+            onClick={() => handleJumpToStage(0.94)}
+            className="w-full mt-3 py-2 px-3 rounded-xl bg-[#171614]/[0.04] hover:bg-[#B86B27]/10 border border-[#171614]/10 hover:border-[#B86B27]/30 text-xs font-sans text-[#171614] flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <span className="text-[11px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 04 Done</span>
+            <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
+              <span>Next: Dispatch Allocation</span>
+              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 6: DISPATCH VAULT & ALLOCATION (88% - 100%) */}
+      {/* STAGE 6: DISPATCH VAULT & ALLOCATION (88% - 100%)          */}
       {/* ========================================================= */}
       <div
-        className={`absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          activeStage === 6 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none hidden'
-        }`}
+        style={{
+          opacity: s6.opacity,
+          transform: s6.transform,
+          pointerEvents: s6.pointerEvents,
+          display: s6.display,
+        }}
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-[#B86B27] tracking-[0.22em] uppercase mb-1">
-            <ShieldCheck size={11} className="text-[#B86B27]" />
-            <span>STEP 05 // VAULT ALLOCATION (500ML)</span>
+          {/* Phase Telemetry & Scrubber */}
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
+            <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
+              <ShieldCheck size={11} className="text-[#B86B27]" />
+              <span>PHASE 05 // VAULT ALLOCATION</span>
+            </div>
+            <span className="tracking-wider">{s6.intraProgress}%</span>
+          </div>
+
+          <div className="w-full bg-[#171614]/[0.06] h-1 rounded-full overflow-hidden mb-3">
+            <div
+              className="bg-[#B86B27] h-full transition-all duration-150"
+              style={{ width: `${s6.intraProgress}%` }}
+            />
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
