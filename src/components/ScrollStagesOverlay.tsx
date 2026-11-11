@@ -8,7 +8,12 @@ import {
   Droplet,
   Layers,
   Award,
-  Sparkles
+  Sparkles,
+  Printer,
+  RotateCcw,
+  Sliders,
+  CheckCircle2,
+  Tag
 } from 'lucide-react';
 import { 
   scrollStore, 
@@ -16,7 +21,10 @@ import {
   NootropicStack, 
   BotanicalModifier,
   ChillMode, 
-  SealColor 
+  SealColor,
+  GlassTint,
+  LabelPaper,
+  WaxDip
 } from '../store/scrollStore';
 import { audioSystem } from '../utils/audioSystem';
 
@@ -25,6 +33,8 @@ export function ScrollStagesOverlay() {
   const [formula, setFormula] = useState({ ...scrollStore.formula });
   const [order, setOrder] = useState({ ...scrollStore.order });
   const [pourState, setPourState] = useState({ ...scrollStore.pour });
+  const [promoInput, setPromoInput] = useState(order.memberCode || '');
+  const [promoFeedback, setPromoFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     // Listen to discrete store updates
@@ -74,6 +84,47 @@ export function ScrollStagesOverlay() {
   const handleSelectSeal = (seal: SealColor) => {
     audioSystem.playClick(880);
     scrollStore.setSeal(seal);
+  };
+
+  const handleSelectGlassTint = (tint: GlassTint) => {
+    audioSystem.playClick(890);
+    scrollStore.setGlassTint(tint);
+  };
+
+  const handleSelectLabelPaper = (paper: LabelPaper) => {
+    audioSystem.playClick(910);
+    scrollStore.setLabelPaper(paper);
+  };
+
+  const handleSelectWaxDip = (wax: WaxDip) => {
+    audioSystem.playClick(870);
+    scrollStore.setWaxDip(wax);
+  };
+
+  const handleSelectQuantity = (qty: 1 | 2 | 6) => {
+    audioSystem.playClick(930);
+    scrollStore.setCustomerOrder({ quantity: qty });
+  };
+
+  const handleSelectCurrency = (curr: 'USD' | 'EUR' | 'GBP') => {
+    audioSystem.playClick(950);
+    scrollStore.setCustomerOrder({ currency: curr });
+  };
+
+  const handleApplyPromo = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const clean = promoInput.trim().toUpperCase();
+    if (clean === 'VIP-AETHER' || clean === 'ATELIER15' || clean === 'ABHAYJEET') {
+      audioSystem.playClink();
+      scrollStore.setCustomerOrder({ memberCode: clean });
+      setPromoFeedback('Privilege Key Authenticated (-$15/vessel)');
+    } else if (clean === '') {
+      scrollStore.setCustomerOrder({ memberCode: '' });
+      setPromoFeedback(null);
+    } else {
+      audioSystem.playClick(440);
+      setPromoFeedback('Unrecognized Atelier Key');
+    }
   };
 
   // 1. Factual 320mL Base Distillates (64% of 500mL)
@@ -152,10 +203,52 @@ export function ScrollStagesOverlay() {
   ];
 
   const seals: { id: SealColor; name: string; hex: string; desc: string }[] = [
-    { id: 'brass', name: 'Champagne Brass', hex: '#C59B27', desc: 'Hand-burnished brass medallion' },
-    { id: 'noir', name: 'Obsidian Carbon', hex: '#22201D', desc: 'CNC-machined blackened titanium' },
+    { id: 'brass', name: 'Champagne Brass', hex: '#C59B27', desc: 'Hand-burnished brushed brass' },
+    { id: 'noir', name: 'Obsidian Titanium', hex: '#22201D', desc: 'Blackened aerospace titanium' },
     { id: 'copper', name: 'Rose Copper', hex: '#B3542E', desc: 'Fire-annealed copper foil' },
+    { id: 'silver', name: 'Sterling Platinum', hex: '#D1D5DB', desc: 'Mirror rhodium-plated finish' },
+    { id: 'gold', name: '24K Aurum Gold', hex: '#F59E0B', desc: '24-karat gold electroplate' },
   ];
+
+  const glassTints: { id: GlassTint; name: string; badge: string; desc: string }[] = [
+    { id: 'clear', name: 'Clear Borosilicate', badge: 'Ultra-Pure', desc: 'Optical clarity' },
+    { id: 'obsidian', name: 'Smoked Obsidian', badge: 'Graphite', desc: 'Volcanic glass' },
+    { id: 'amber', name: 'Apothecary Amber', badge: 'UV-Shield', desc: 'Amber crystal' },
+    { id: 'frosted', name: 'Frosted Satin', badge: 'Matte', desc: 'Acid-etched frost' },
+  ];
+
+  const labelPapers: { id: LabelPaper; name: string; badge: string; desc: string }[] = [
+    { id: 'ivory', name: 'Ivory Cotton', badge: '450gsm', desc: 'Letterpress cotton' },
+    { id: 'noir', name: 'Midnight Noir', badge: 'Hot Foil', desc: 'Matte black & bronze' },
+    { id: 'washi', name: 'Mulberry Washi', badge: 'Artisanal', desc: 'Echizen Japanese' },
+  ];
+
+  const waxDips: { id: WaxDip; name: string; hex: string; desc: string }[] = [
+    { id: 'none', name: 'Flor Cork', hex: '#C29B38', desc: 'Natural cork' },
+    { id: 'crimson', name: 'Crimson', hex: '#991B1B', desc: 'Vermilion seal' },
+    { id: 'black', name: 'Pitch Black', hex: '#171614', desc: 'Matte wax' },
+    { id: 'gold', name: 'Aurum Gold', hex: '#D4AF37', desc: 'Gold-dusted' },
+  ];
+
+  const allocationTiers = [
+    { qty: 1 as const, name: 'Single Vessel', vol: '500mL', basePrice: 145, engPrice: 28, badge: 'Standard Reserve' },
+    { qty: 2 as const, name: 'Collector Pair', vol: '2x 500mL', basePrice: 260, engPrice: 50, badge: 'Save $36 (Atelier Choice)' },
+    { qty: 6 as const, name: 'Private Cask Cellar', vol: '6x 500mL', basePrice: 720, engPrice: 100, badge: 'Save $218 (Collector Tier)' },
+  ];
+
+  const currencyMap: Record<string, { symbol: string; rate: number }> = {
+    USD: { symbol: '$', rate: 1.0 },
+    EUR: { symbol: '€', rate: 0.92 },
+    GBP: { symbol: '£', rate: 0.79 },
+  };
+
+  const curr = currencyMap[order.currency || 'USD'] || currencyMap.USD;
+  const formatPrice = (usdAmount: number) => {
+    const converted = Math.round(usdAmount * curr.rate);
+    return `${curr.symbol}${converted}`;
+  };
+
+  const currentTier = allocationTiers.find((t) => t.qty === (order.quantity || 1)) || allocationTiers[0];
 
   const stageTargets = [
     { num: 1, label: 'Genesis', p: 0.0 },
@@ -233,7 +326,7 @@ export function ScrollStagesOverlay() {
   return (
     <div className="fixed inset-0 w-screen h-screen z-30 pointer-events-none overflow-hidden select-none text-[#171614]">
       {/* Right-Side Vertical Step Navigation Rail (Desktop) */}
-      <div className="hidden xl:flex fixed right-8 top-1/2 -translate-y-1/2 flex-col items-end space-y-4 pointer-events-auto z-40">
+      <div className="hidden xl:flex fixed right-5 top-1/2 -translate-y-1/2 flex-col items-end space-y-4 pointer-events-auto z-40">
         {stageTargets.map((s) => (
           <button
             key={s.num}
@@ -426,9 +519,9 @@ export function ScrollStagesOverlay() {
           pointerEvents: s3.pointerEvents,
           display: s3.display,
         }}
-        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-transform duration-100 ease-out"
+        className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
       >
-        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+        <div className="w-full max-w-[400px] mr-0 xl:mr-6 pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
           {/* Phase Telemetry & Scrubber */}
           <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
             <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
@@ -532,9 +625,9 @@ export function ScrollStagesOverlay() {
           pointerEvents: s4.pointerEvents,
           display: s4.display,
         }}
-        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-transform duration-100 ease-out"
+        className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
       >
-        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+        <div className="w-full max-w-[400px] mr-0 xl:mr-6 pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
           {/* Phase Telemetry & Scrubber */}
           <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
             <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
@@ -645,7 +738,7 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 5: BESPOKE LABEL PERSONALIZATION (74% - 88%)         */}
+      {/* STAGE 5: BESPOKE 3D CUSTOMIZATION SUITE (74% - 88%)       */}
       {/* ========================================================= */}
       <div
         style={{
@@ -656,12 +749,12 @@ export function ScrollStagesOverlay() {
         }}
         className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
-        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-lg max-h-[85vh] overflow-y-auto">
+        <div className="w-full max-w-[430px] pointer-events-auto bg-white/90 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[86vh] overflow-y-auto">
           {/* Phase Telemetry & Scrubber */}
           <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
             <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
               <Award size={11} className="text-[#B86B27]" />
-              <span>PHASE 04 // 3D LASER ENGRAVING</span>
+              <span>PHASE 04 // 3D BESPOKE SUITE</span>
             </div>
             <span className="tracking-wider">{s5.intraProgress}%</span>
           </div>
@@ -674,65 +767,187 @@ export function ScrollStagesOverlay() {
           </div>
 
           <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
-            Engrave The 3D Label<span className="text-[#B86B27]">.</span>
+            Bespoke Vessel Suite<span className="text-[#B86B27]">.</span>
           </h2>
           <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-3">
-            Type your private reserve title and monogram. The 3D label on the bottle engraves in real time.
+            Configure vessel glass tint, cap metallurgy, neck wax dip, and real-time 3D laser engraving.
           </p>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
+            {/* 1. Vessel Glass Tint */}
             <div>
-              <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
-                Custom Edition Title
-              </label>
-              <input
-                type="text"
-                maxLength={24}
-                value={formula.customName}
-                onChange={(e) => scrollStore.setCustomName(e.target.value)}
-                placeholder="e.g. ABHAYJEET RESERVE"
-                className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium outline-none transition-all"
-              />
+              <div className="flex justify-between items-center mb-1">
+                <label className="font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest">
+                  Vessel Glass Tint
+                </label>
+                <span className="font-mono text-[9px] text-[#B86B27] font-medium">
+                  {glassTints.find((g) => g.id === formula.glassTint)?.name}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {glassTints.map((g) => {
+                  const isSel = formula.glassTint === g.id;
+                  return (
+                    <button
+                      key={g.id}
+                      onClick={() => handleSelectGlassTint(g.id)}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                        isSel
+                          ? 'bg-[#171614] text-[#FAF7F0] border-[#171614] shadow-sm'
+                          : 'bg-white hover:bg-[#FAF7F0] border-[#171614]/10 text-[#171614]'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-sans font-medium text-xs leading-tight">{g.name}</div>
+                        <div className={`font-mono text-[8px] mt-0.5 ${isSel ? 'text-[#B86B27]' : 'text-[#6E6961]'}`}>
+                          {g.desc}
+                        </div>
+                      </div>
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                        isSel ? 'bg-white/15 text-white' : 'bg-[#171614]/5 text-[#6E6961]'
+                      }`}>
+                        {g.badge}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
+            {/* 2. Cap Metallurgy */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest">
+                  Cap Metallurgy & Stopper
+                </label>
+                <span className="font-mono text-[9px] text-[#B86B27] font-medium">
+                  {seals.find((s) => s.id === formula.seal)?.name}
+                </span>
+              </div>
+              <div className="flex space-x-1.5 pt-0.5">
+                {seals.map((s) => {
+                  const isSel = formula.seal === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => handleSelectSeal(s.id)}
+                      className={`relative flex-1 p-1.5 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                        isSel ? 'bg-white border-2 border-[#B86B27] shadow-sm' : 'bg-white/70 hover:bg-white border-[#171614]/10'
+                      }`}
+                      title={s.name}
+                    >
+                      <div
+                        className="w-4 h-4 rounded-full border border-black/10 shadow-inner mb-1"
+                        style={{ backgroundColor: s.hex }}
+                      />
+                      <span className="font-sans text-[8px] font-medium text-[#171614] text-center leading-none truncate max-w-full">
+                        {s.name.split(' ')[0]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 3. Label Parchment & Neck Wax Seal */}
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
-                  Monogram Initials
+                  Label Parchment
                 </label>
-                <input
-                  type="text"
-                  maxLength={3}
-                  value={formula.engravedInitials}
-                  onChange={(e) => scrollStore.setEngravedInitials(e.target.value.toUpperCase())}
-                  placeholder="AT"
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium font-serif uppercase outline-none transition-all"
-                />
+                <div className="space-y-1">
+                  {labelPapers.map((lp) => {
+                    const isSel = formula.labelPaper === lp.id;
+                    return (
+                      <button
+                        key={lp.id}
+                        onClick={() => handleSelectLabelPaper(lp.id)}
+                        className={`w-full p-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between ${
+                          isSel ? 'bg-[#171614] text-[#FAF7F0] border-[#171614]' : 'bg-white hover:bg-[#FAF7F0] border-[#171614]/10 text-[#171614]'
+                        }`}
+                      >
+                        <span className="font-sans text-[10px] font-medium leading-none">{lp.name}</span>
+                        <span className={`text-[7px] font-mono uppercase ${isSel ? 'text-[#B86B27]' : 'text-[#6E6961]'}`}>{lp.badge}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
                 <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-1">
-                  Medallion Foil
+                  Neck Wax Seal Dip
                 </label>
-                <div className="flex space-x-2 pt-0.5">
-                  {seals.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => handleSelectSeal(s.id)}
-                      className={`w-7 h-7 rounded-full border-2 transition-transform cursor-pointer ${
-                        formula.seal === s.id ? 'border-[#B86B27] scale-110 shadow-sm' : 'border-transparent hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: s.hex }}
-                      title={s.name}
-                    />
-                  ))}
+                <div className="space-y-1">
+                  {waxDips.map((wd) => {
+                    const isSel = formula.waxDip === wd.id;
+                    return (
+                      <button
+                        key={wd.id}
+                        onClick={() => handleSelectWaxDip(wd.id)}
+                        className={`w-full p-1.5 rounded-lg border text-left transition-all cursor-pointer flex items-center space-x-1.5 ${
+                          isSel ? 'bg-white border-2 border-[#B86B27] shadow-sm' : 'bg-white/70 hover:bg-white border-[#171614]/10'
+                        }`}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/10" style={{ backgroundColor: wd.hex }} />
+                        <span className="font-sans text-[10px] font-medium text-[#171614] truncate leading-none">{wd.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
-            <div className="pt-1 text-[10px] font-mono text-[#B86B27] flex items-center space-x-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
-              <span>3D TEXTURE EMBOSSED IN REAL TIME</span>
+            {/* 4. Real-time 3D Laser Engraving & Cask Year */}
+            <div className="pt-2 border-t border-[#171614]/10 space-y-1.5">
+              <div>
+                <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
+                  Custom Reserve Edition Title
+                </label>
+                <input
+                  type="text"
+                  maxLength={24}
+                  value={formula.customName}
+                  onChange={(e) => scrollStore.setCustomName(e.target.value)}
+                  placeholder="e.g. ABHAYJEET RESERVE"
+                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium outline-none transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
+                    Monogram Initials
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={3}
+                    value={formula.engravedInitials}
+                    onChange={(e) => scrollStore.setEngravedInitials(e.target.value.toUpperCase())}
+                    placeholder="AT"
+                    className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] focus:ring-1 focus:ring-[#B86B27] text-xs text-[#171614] font-medium font-serif uppercase outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
+                    Cask & Batch Year
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={18}
+                    value={formula.batchYear}
+                    onChange={(e) => scrollStore.setBatchYear(e.target.value.toUpperCase())}
+                    placeholder="2026 // CASK 01"
+                    className="w-full px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] text-xs text-[#171614] font-mono outline-none transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-1 text-[9px] font-mono text-[#B86B27] flex items-center space-x-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B86B27] animate-pulse" />
+                <span>3D BOTTLE MESH EMBOSSED LIVE AT 60FPS</span>
+              </div>
             </div>
           </div>
 
@@ -743,7 +958,7 @@ export function ScrollStagesOverlay() {
           >
             <span className="text-[11px] font-mono text-[#6E6961] group-hover:text-[#B86B27]">Step 04 Done</span>
             <div className="flex items-center space-x-1.5 text-[#B86B27] font-medium text-xs">
-              <span>Next: Dispatch Allocation</span>
+              <span>Next: Vault Allocation & Billing</span>
               <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
@@ -751,7 +966,7 @@ export function ScrollStagesOverlay() {
       </div>
 
       {/* ========================================================= */}
-      {/* STAGE 6: DISPATCH VAULT & ALLOCATION (88% - 100%)          */}
+      {/* STAGE 6: DISPATCH VAULT & AUTHENTIC BILLING (88% - 100%)   */}
       {/* ========================================================= */}
       <div
         style={{
@@ -760,14 +975,14 @@ export function ScrollStagesOverlay() {
           pointerEvents: s6.pointerEvents,
           display: s6.display,
         }}
-        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-end transition-transform duration-100 ease-out"
+        className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
       >
-        <div className="w-full max-w-[400px] pointer-events-auto bg-white/85 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[85vh] overflow-y-auto">
+        <div className="w-full max-w-[420px] mr-0 xl:mr-6 pointer-events-auto bg-white/90 p-5 sm:p-6 rounded-2xl border border-[#171614]/[0.08] backdrop-blur-md shadow-xl max-h-[86vh] overflow-y-auto">
           {/* Phase Telemetry & Scrubber */}
           <div className="flex items-center justify-between text-[10px] font-mono text-[#B86B27] mb-1">
             <div className="flex items-center space-x-1.5 tracking-[0.20em] uppercase">
               <ShieldCheck size={11} className="text-[#B86B27]" />
-              <span>PHASE 05 // VAULT ALLOCATION</span>
+              <span>PHASE 05 // VAULT ALLOCATION & BILLING</span>
             </div>
             <span className="tracking-wider">{s6.intraProgress}%</span>
           </div>
@@ -779,47 +994,232 @@ export function ScrollStagesOverlay() {
             />
           </div>
 
-          <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em] mb-1">
-            Dispatch Your Batch<span className="text-[#B86B27]">.</span>
-          </h2>
-          <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed mb-2.5">
-            Nitrogen-purged packaging, signed certificate, and direct courier dispatch.
-          </p>
+          <div className="flex items-start justify-between mb-1.5">
+            <div>
+              <h2 className="font-sans font-light text-2xl text-[#171614] tracking-[-0.02em]">
+                Dispatch Your Batch<span className="text-[#B86B27]">.</span>
+              </h2>
+              <p className="font-sans text-xs text-[#6E6961] font-light leading-relaxed">
+                Nitrogen-purged packaging, signed certificate, and cold courier dispatch.
+              </p>
+            </div>
 
-          {/* Factual Recipe Breakdown Receipt */}
-          <div className="p-2.5 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-2.5 text-[11px] font-mono space-y-1">
-            <div className="flex justify-between">
-              <span className="text-[#171614]/50">DISTILLATE (320mL):</span>
-              <span className="text-[#171614] font-medium uppercase">{formula.base || 'YUZU'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#171614]/50">NOOTROPIC (80mL):</span>
-              <span className="text-[#171614] font-medium uppercase">{formula.nootropic || 'ALPHA'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#171614]/50">MODIFIER (60mL):</span>
-              <span className="text-[#171614] font-medium uppercase">{formula.modifier || 'ROSEMARY'}</span>
-            </div>
-            <div className="flex justify-between border-t border-[#171614]/10 pt-1">
-              <span className="text-[#171614]/60">TOTAL VOLUME:</span>
-              <span className="text-[#B86B27] font-semibold">500mL // 0.0% ABV</span>
+            {/* Currency Selector */}
+            <div className="flex bg-[#171614]/5 rounded-lg p-0.5 border border-[#171614]/10 shrink-0 ml-2">
+              {(['USD', 'EUR', 'GBP'] as const).map((c) => (
+                <button
+                  key={c}
+                  onClick={() => handleSelectCurrency(c)}
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
+                    order.currency === c ? 'bg-white text-[#171614] font-bold shadow-xs' : 'text-[#6E6961] hover:text-[#171614]'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
             </div>
           </div>
 
+          {/* Allocation Quantity Tiers */}
+          <div className="my-2 space-y-1">
+            <div className="font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest">
+              Select Reserve Allocation
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {allocationTiers.map((t) => {
+                const isSel = (order.quantity || 1) === t.qty;
+                return (
+                  <button
+                    key={t.qty}
+                    onClick={() => handleSelectQuantity(t.qty)}
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between ${
+                      isSel
+                        ? 'bg-[#171614] text-[#FAF7F0] border-[#171614] shadow-sm'
+                        : 'bg-white hover:bg-[#FAF7F0] border-[#171614]/10 text-[#171614]'
+                    }`}
+                  >
+                    <span className="font-sans text-xs font-semibold">{t.qty} Vessel{t.qty > 1 ? 's' : ''}</span>
+                    <span className={`font-mono text-[9px] mt-0.5 ${isSel ? 'text-[#B86B27]' : 'text-[#6E6961]'}`}>{t.vol}</span>
+                    <span className={`text-[10px] font-mono font-bold mt-1 ${isSel ? 'text-white' : 'text-[#B86B27]'}`}>
+                      {formatPrice(t.basePrice + t.engPrice)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Itemized Transparent Luxury Billing Statement */}
+          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-[#171614]/[0.08] mb-2.5 text-[11px] font-mono space-y-1.5">
+            <div className="flex justify-between text-[#171614]/60 pb-1 border-b border-[#171614]/10">
+              <span className="uppercase tracking-wider text-[9px]">Itemized Formulation</span>
+              <span className="uppercase tracking-wider text-[9px]">Rate ({order.currency || 'USD'})</span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-[#171614] font-medium">500mL Botanical Distillate</span>
+                <span className="block text-[9px] text-[#6E6961]">
+                  {formula.base?.toUpperCase() || 'YUZU'} (64%) · {formula.nootropic?.toUpperCase() || 'ALPHA'} (16%) · {formula.modifier?.toUpperCase() || 'ROSEMARY'} (12%)
+                </span>
+              </div>
+              <span className="text-[#171614] font-medium">
+                {formatPrice(currentTier.basePrice)}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-[#171614] font-medium">3D Laser Monogram & Metallurgy</span>
+                <span className="block text-[9px] text-[#6E6961]">
+                  [{formula.engravedInitials || 'AT'}] · {formula.seal.toUpperCase()} · {formula.glassTint.toUpperCase()} GLASS
+                </span>
+              </div>
+              <span className="text-[#171614] font-medium">
+                {formatPrice(currentTier.engPrice)}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-[#171614]/70">Cold-Chain White Glove Courier</span>
+              <span className="text-[#065F46] font-medium">Complimentary</span>
+            </div>
+
+            {order.memberCode && (
+              <div className="flex justify-between items-center text-[#B86B27]">
+                <span>VIP Member Privilege ({order.memberCode})</span>
+                <span>-{formatPrice(15 * currentTier.qty)}</span>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center border-t border-[#171614]/15 pt-2 text-xs">
+              <span className="text-[#171614] font-semibold uppercase tracking-wider">Total Investment:</span>
+              <span className="text-[#B86B27] font-bold text-sm">
+                {formatPrice(order.totalPrice || currentTier.basePrice + currentTier.engPrice)}
+              </span>
+            </div>
+          </div>
+
+          {/* Member Privilege Code Entry */}
+          {!order.confirmed && (
+            <div className="mb-2.5">
+              <div className="flex items-center space-x-1.5">
+                <input
+                  type="text"
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                  placeholder="VIP ATELIER KEY (e.g. VIP-AETHER)"
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-[#171614]/15 focus:border-[#B86B27] font-mono text-[10px] text-[#171614] uppercase outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleApplyPromo()}
+                  className="px-3 py-1.5 rounded-lg bg-[#171614]/5 hover:bg-[#171614]/10 border border-[#171614]/10 font-mono text-[10px] text-[#171614] cursor-pointer"
+                >
+                  Apply
+                </button>
+              </div>
+              {promoFeedback && (
+                <div className={`mt-1 font-mono text-[9px] ${promoFeedback.includes('Authenticated') ? 'text-[#065F46]' : 'text-[#991B1B]'}`}>
+                  {promoFeedback}
+                </div>
+              )}
+            </div>
+          )}
+
           {order.confirmed ? (
-            <div className="p-4 rounded-xl bg-[#065F46]/10 border border-[#065F46]/30 text-center space-y-2">
-              <div className="w-8 h-8 rounded-full bg-[#065F46] text-white flex items-center justify-center mx-auto">
-                <Check size={16} />
+            /* ======================================================== */
+            /* LUXURY BESPOKE CERTIFICATE OF BOTTLING & PROVENANCE     */
+            /* ======================================================== */
+            <div className="p-4 rounded-xl bg-gradient-to-b from-[#FFFDF9] to-[#F5EFE6] border-2 border-[#D4AF37]/50 shadow-md text-left space-y-2.5 relative overflow-hidden">
+              <div className="absolute top-2 right-2 opacity-10 pointer-events-none">
+                <ShieldCheck size={90} className="text-[#D4AF37]" />
               </div>
-              <h3 className="font-sans font-medium text-sm text-[#065F46]">
-                Allocation Authenticated
-              </h3>
-              <div className="font-mono text-[11px] text-[#065F46] tracking-widest">
-                SERIAL: {order.serialNumber}
+
+              {/* Certificate Header */}
+              <div className="border-b border-[#D4AF37]/30 pb-2 flex items-center justify-between">
+                <div>
+                  <div className="font-mono text-[8px] text-[#B86B27] tracking-[0.25em] uppercase font-bold">
+                    OFFICIAL CERTIFICATE OF PROVENANCE
+                  </div>
+                  <h3 className="font-serif text-lg font-light text-[#171614] leading-tight">
+                    Aether Bottling Registry
+                  </h3>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-[#065F46] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Check size={16} />
+                </div>
               </div>
-              <p className="font-sans text-xs text-[#6E6961]">
-                Dispatched to {order.fullName || 'Recipient'} at {order.address || 'Confidential Destination'}.
-              </p>
+
+              {/* Certificate Registry Data */}
+              <div className="font-mono text-[10px] space-y-1 text-[#171614]/80">
+                <div className="flex justify-between">
+                  <span className="text-[#6E6961]">SERIAL NO:</span>
+                  <span className="font-bold text-[#171614] tracking-widest">{order.serialNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6E6961]">CASK & BATCH:</span>
+                  <span className="text-[#B86B27] font-semibold">{formula.batchYear}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6E6961]">RESERVE TITLE:</span>
+                  <span className="text-[#171614] font-medium">{formula.customName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6E6961]">MONOGRAM:</span>
+                  <span className="font-serif font-bold text-[#171614]">[{formula.engravedInitials}]</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6E6961]">VESSEL SPEC:</span>
+                  <span className="text-[#171614] uppercase">{formula.glassTint} · {formula.seal} · {formula.waxDip}</span>
+                </div>
+                <div className="flex justify-between border-t border-[#D4AF37]/20 pt-1">
+                  <span className="text-[#6E6961]">DISPATCH DESTINATION:</span>
+                  <span className="text-[#171614] font-medium text-right truncate max-w-[200px]">
+                    {order.fullName} — {order.city}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6E6961]">BILLED AMOUNT:</span>
+                  <span className="text-[#065F46] font-bold">
+                    {formatPrice(order.totalPrice || currentTier.basePrice + currentTier.engPrice)} PAID
+                  </span>
+                </div>
+              </div>
+
+              {/* Master Distiller Verification Signature */}
+              <div className="pt-2 border-t border-[#D4AF37]/30 flex items-center justify-between">
+                <div>
+                  <div className="font-serif italic text-xs text-[#171614]">Atelier Aether & Co.</div>
+                  <div className="font-mono text-[7px] text-[#6E6961] tracking-wider uppercase">Master Distiller Vault Seal</div>
+                </div>
+                <div className="px-2 py-0.5 rounded bg-[#065F46]/10 border border-[#065F46]/30 text-[#065F46] font-mono text-[8px] uppercase tracking-wider font-bold">
+                  AUTHENTICATED
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="py-1.5 px-2 rounded-lg bg-white border border-[#171614]/15 hover:border-[#171614]/30 font-sans text-[10px] text-[#171614] flex items-center justify-center space-x-1 cursor-pointer transition-all"
+                >
+                  <Printer size={11} />
+                  <span>Print Certificate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    audioSystem.playClick(800);
+                    scrollStore.setCustomerOrder({ confirmed: false });
+                  }}
+                  className="py-1.5 px-2 rounded-lg bg-[#171614]/5 hover:bg-[#171614]/10 border border-[#171614]/10 font-sans text-[10px] text-[#171614] flex items-center justify-center space-x-1 cursor-pointer transition-all"
+                >
+                  <RotateCcw size={11} />
+                  <span>Modify Vessel</span>
+                </button>
+              </div>
             </div>
           ) : (
             <form
@@ -874,7 +1274,7 @@ export function ScrollStagesOverlay() {
                 </div>
                 <div>
                   <label className="block font-mono text-[9px] text-[#171614]/60 uppercase tracking-widest mb-0.5">
-                    Email
+                    Email Address
                   </label>
                   <input
                     required

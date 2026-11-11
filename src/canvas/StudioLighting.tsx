@@ -86,10 +86,10 @@ export function StudioLighting() {
         color="#FFF6E8"
       />
 
-      {/* Inner Punt Uplight (Internal luminous core inside the glass punt) */}
+      {/* Inner Punt Uplight (Internal luminous core inside the liquid) */}
       <pointLight
         ref={upLightRef}
-        position={[0, -1.25, 0]}
+        position={[0, -1.00, 0]}
         intensity={0.2}
         distance={3.5}
         decay={2}

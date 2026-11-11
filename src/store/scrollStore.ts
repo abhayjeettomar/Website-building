@@ -6,7 +6,10 @@ export type BaseDistillate = 'yuzu' | 'blood_orange' | 'juniper';
 export type NootropicStack = 'alpha' | 'social' | 'restoration';
 export type BotanicalModifier = 'rosemary' | 'vetiver' | 'shiso';
 export type ChillMode = 'glacial' | 'cellar';
-export type SealColor = 'brass' | 'noir' | 'copper';
+export type SealColor = 'brass' | 'noir' | 'copper' | 'silver' | 'gold';
+export type GlassTint = 'clear' | 'obsidian' | 'amber' | 'frosted';
+export type LabelPaper = 'ivory' | 'noir' | 'washi';
+export type WaxDip = 'none' | 'crimson' | 'black' | 'gold';
 
 export interface BespokeFormula {
   base: BaseDistillate | null;       // 320mL (64%)
@@ -14,8 +17,12 @@ export interface BespokeFormula {
   modifier: BotanicalModifier | null;// 60mL  (12%)
   chill: ChillMode;                  // 40mL  (8%)
   seal: SealColor;
+  glassTint: GlassTint;
+  labelPaper: LabelPaper;
+  waxDip: WaxDip;
   customName: string;
   engravedInitials: string;
+  batchYear: string;
 }
 
 export interface CustomerOrder {
@@ -25,6 +32,10 @@ export interface CustomerOrder {
   email: string;
   confirmed: boolean;
   serialNumber: string;
+  quantity: 1 | 2 | 6;
+  currency: 'USD' | 'EUR' | 'GBP';
+  memberCode: string;
+  totalPrice: number;
 }
 
 export interface PourState {
@@ -63,9 +74,14 @@ export interface ScrollStore {
   selectModifier: (mod: BotanicalModifier) => void;
   setChill: (chill: ChillMode) => void;
   setSeal: (seal: SealColor) => void;
+  setGlassTint: (tint: GlassTint) => void;
+  setLabelPaper: (paper: LabelPaper) => void;
+  setWaxDip: (wax: WaxDip) => void;
   setCustomName: (name: string) => void;
   setEngravedInitials: (initials: string) => void;
+  setBatchYear: (year: string) => void;
   setCustomerOrder: (order: Partial<CustomerOrder>) => void;
+  recalculatePrice: () => void;
   confirmOrder: () => void;
   updatePourPhysics: (delta: number) => void;
   recalculateTargetVolume: () => void;
@@ -83,8 +99,12 @@ export const scrollStore: ScrollStore = {
     modifier: null,
     chill: 'glacial',
     seal: 'brass',
+    glassTint: 'clear',
+    labelPaper: 'ivory',
+    waxDip: 'none',
     customName: 'AETHER // BESPOKE',
     engravedInitials: 'AT',
+    batchYear: '2026 // CASK 01',
   },
 
   pour: {
@@ -107,6 +127,10 @@ export const scrollStore: ScrollStore = {
     email: 'atelier@aether.luxury',
     confirmed: false,
     serialNumber: '',
+    quantity: 1,
+    currency: 'USD',
+    memberCode: '',
+    totalPrice: 173,
   },
 
   listeners: new Set(),
@@ -222,6 +246,21 @@ export const scrollStore: ScrollStore = {
     this.notify();
   },
 
+  setGlassTint(tint: GlassTint) {
+    this.formula.glassTint = tint;
+    this.notify();
+  },
+
+  setLabelPaper(paper: LabelPaper) {
+    this.formula.labelPaper = paper;
+    this.notify();
+  },
+
+  setWaxDip(wax: WaxDip) {
+    this.formula.waxDip = wax;
+    this.notify();
+  },
+
   setCustomName(name: string) {
     this.formula.customName = name;
     this.notify();
@@ -232,9 +271,42 @@ export const scrollStore: ScrollStore = {
     this.notify();
   },
 
+  setBatchYear(year: string) {
+    this.formula.batchYear = year;
+    this.notify();
+  },
+
   setCustomerOrder(order: Partial<CustomerOrder>) {
     Object.assign(this.order, order);
+    this.recalculatePrice();
     this.notify();
+  },
+
+  recalculatePrice() {
+    const qty = this.order.quantity || 1;
+    let baseUsd = 145;
+    let engravingUsd = 28;
+    if (qty === 2) {
+      baseUsd = 260;
+      engravingUsd = 50;
+    } else if (qty === 6) {
+      baseUsd = 720;
+      engravingUsd = 100;
+    }
+
+    let discountUsd = 0;
+    const cleanCode = (this.order.memberCode || '').trim().toUpperCase();
+    if (cleanCode === 'VIP-AETHER' || cleanCode === 'ATELIER15' || cleanCode === 'ABHAYJEET') {
+      discountUsd = 15 * qty;
+    }
+
+    const subtotalUsd = Math.max(0, baseUsd + engravingUsd - discountUsd);
+
+    let rate = 1.0;
+    if (this.order.currency === 'EUR') rate = 0.92;
+    else if (this.order.currency === 'GBP') rate = 0.79;
+
+    this.order.totalPrice = Math.round(subtotalUsd * rate);
   },
 
   confirmOrder() {

@@ -19,8 +19,13 @@ export function HeroBackplate() {
       }
     };
 
-    const interval = setInterval(onScroll, 33);
-    return () => clearInterval(interval);
+    let animId: number;
+    const loop = () => {
+      onScroll();
+      animId = requestAnimationFrame(loop);
+    };
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
   }, []);
 
   return (
