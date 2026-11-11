@@ -16,15 +16,22 @@ export function BottleAssembly() {
   const splashParticlesRef = useRef<THREE.InstancedMesh>(null);
   const bubblesRef = useRef<THREE.InstancedMesh>(null);
   const alphaParticlesRef = useRef<THREE.InstancedMesh>(null);
+  const socialBubblesRef = useRef<THREE.InstancedMesh>(null);
+  const restorationParticlesRef = useRef<THREE.InstancedMesh>(null);
   const capGroupRef = useRef<THREE.Group>(null);
   const corkRef = useRef<THREE.Mesh>(null);
   const capMedallionRef = useRef<THREE.Mesh>(null);
+  const capCoinRef = useRef<THREE.Mesh>(null);
   const waxDipRef = useRef<THREE.Mesh>(null);
   const labelMeshRef = useRef<THREE.Mesh>(null);
   const jiggerRef = useRef<THREE.Group>(null);
   const marbleSlabRef = useRef<THREE.Group>(null);
-  const orbitalsGroupRef = useRef<THREE.Group>(null);
-  const rosemaryRef = useRef<THREE.Mesh>(null);
+  const iceGroupRef = useRef<THREE.Group>(null);
+  const alphaHaloRef = useRef<THREE.Mesh>(null);
+  const socialHaloRef = useRef<THREE.Mesh>(null);
+  const restorationHaloRef = useRef<THREE.Mesh>(null);
+  const rosemaryRef = useRef<THREE.Group>(null);
+  const vetiverRef = useRef<THREE.Group>(null);
   const shisoRef = useRef<THREE.Group>(null);
   const dustMotesRef = useRef<THREE.InstancedMesh>(null);
 
@@ -167,15 +174,15 @@ export function BottleAssembly() {
   // Luxury Honed Nero Marquina Marble Counter Slab (Stage 1 Opening Plinth)
   const marbleSlabGeometry = useMemo(() => new THREE.CylinderGeometry(1.65, 1.70, 0.14, 48), []);
 
-  // Wax Dip Seal geometry around neck
+  // Wax Dip Seal geometry around neck (encasing aperture rim generously)
   const waxGeometry = useMemo(() => {
     const points: THREE.Vector2[] = [];
-    points.push(new THREE.Vector2(0.14, 1.20));
-    points.push(new THREE.Vector2(0.175, 1.20));
-    points.push(new THREE.Vector2(0.18, 1.32));
-    points.push(new THREE.Vector2(0.21, 1.34));
-    points.push(new THREE.Vector2(0.21, 1.39));
-    points.push(new THREE.Vector2(0.14, 1.39));
+    points.push(new THREE.Vector2(0.13, 1.15));
+    points.push(new THREE.Vector2(0.185, 1.15));
+    points.push(new THREE.Vector2(0.19, 1.28));
+    points.push(new THREE.Vector2(0.23, 1.33));
+    points.push(new THREE.Vector2(0.235, 1.41));
+    points.push(new THREE.Vector2(0.13, 1.41));
     return new THREE.LatheGeometry(points, 32);
   }, []);
 
@@ -218,6 +225,33 @@ export function BottleAssembly() {
     }));
   }, []);
 
+  // Social Euphoria Rose-Pink Effervescent Micro-Bubbles (50 sparkling rose bubbles)
+  const SOCIAL_COUNT = 50;
+  const socialGeometry = useMemo(() => new THREE.SphereGeometry(0.008, 6, 6), []);
+  const socialData = useMemo(() => {
+    return Array.from({ length: SOCIAL_COUNT }, () => ({
+      r: Math.sqrt(Math.random()) * 0.34,
+      angle: Math.random() * Math.PI * 2,
+      y: -1.18 + Math.random() * 1.5,
+      speed: 0.25 + Math.random() * 0.38,
+      pulseSeed: Math.random() * 10
+    }));
+  }, []);
+
+  // Parasympathetic Restoration Calming Twilight Particles (45 amethyst micro-glints)
+  const RESTORATION_COUNT = 45;
+  const restorationGeometry = useMemo(() => new THREE.SphereGeometry(0.008, 6, 6), []);
+  const restorationData = useMemo(() => {
+    return Array.from({ length: RESTORATION_COUNT }, () => ({
+      r: 0.04 + Math.random() * 0.30,
+      angle: Math.random() * Math.PI * 2,
+      y: -1.15 + Math.random() * 1.4,
+      vSpeed: 0.05 + Math.random() * 0.09,
+      orbitSpeed: 0.3 + Math.random() * 0.6,
+      pulseSeed: Math.random() * 10
+    }));
+  }, []);
+
   // Atmospheric Volumetric Dust Motes (45 golden floating specks in empty space)
   const DUST_COUNT = 45;
   const dustGeometry = useMemo(() => new THREE.SphereGeometry(0.009, 6, 6), []);
@@ -232,10 +266,12 @@ export function BottleAssembly() {
     }));
   }, []);
 
-  // Orbitals: Crystal Clear Ice Cube & Botanical Juniper Spheres
+  // Orbitals: Crystal Clear Ice Cube, Juniper Spheres, Rosemary, Vetiver Root, Fig Leaf
   const iceGeometry = useMemo(() => new THREE.BoxGeometry(0.26, 0.26, 0.26), []);
   const berryGeometry = useMemo(() => new THREE.SphereGeometry(0.042, 12, 12), []);
   const rosemaryGeometry = useMemo(() => new THREE.CylinderGeometry(0.008, 0.006, 0.45, 12), []);
+  const vetiverRootGeometry = useMemo(() => new THREE.CylinderGeometry(0.007, 0.004, 0.44, 8), []);
+  const figLeafGeometry = useMemo(() => new THREE.SphereGeometry(0.18, 12, 12), []);
 
   const dummyMatrix = useMemo(() => new THREE.Matrix4(), []);
   const dummyQuat = useMemo(() => new THREE.Quaternion(), []);
@@ -260,61 +296,80 @@ export function BottleAssembly() {
 
     if (!masterBottleRef.current) return;
 
-    // --- 1. Continuous Parametric Scroll Trajectory ---
+    // --- 1. Continuous Parametric Scroll Trajectory & 3D Mobility ---
     let bX = 0;
     let bY = -0.16;
+    let bZ = 0;
     let bRotY = 0.15;
+    let bRotX = 0;
+    let bRotZ = 0;
+
+    // Fluid floating breathing animation
+    const floatY = Math.sin(time * 1.8) * 0.032;
 
     if (p < 0.16) {
-      // Stage 1: Genesis (Center hero resting on marble counter slab)
+      // Stage 1: Genesis (Resting on marble slab plinth, slow seductive rotation)
       const t = p / 0.16;
       bX = 0;
-      bY = -0.16 + Math.sin(time * 1.2) * 0.012;
-      bRotY = 0.15 + t * 0.15;
+      bY = -0.16 + floatY * (1 - t);
+      bZ = 0;
+      bRotY = 0.15 + t * 0.25 + Math.sin(time * 0.5) * 0.08;
     } else if (p < 0.36) {
-      // Stage 2: Distillate Base (Continuously glides to right flank, revealing profile)
+      // Stage 2: Distillate Base (Levitates up, glides to right flank with forward arc)
       const t = (p - 0.16) / 0.20;
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.85, Math.min(1.0, t * 1.4));
-      bY = -0.14 + Math.sin(time * 1.0) * 0.012;
-      bRotY = 0.30 + t * 0.35;
+      const smoothT = Math.sin(t * Math.PI * 0.5);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.0, 0.82, smoothT);
+      bY = -0.14 + floatY;
+      bZ = Math.sin(t * Math.PI) * 0.32; // Cinematic forward arc
+      bRotY = THREE.MathUtils.lerp(0.40, 0.85, smoothT);
+      bRotZ = Math.sin(t * Math.PI) * -0.09; // Dynamic banking into curve
     } else if (p < 0.56) {
-      // Stage 3: Exploded Formulation (Continuously glides across to left flank)
+      // Stage 3: Exploded Formulation (Crosses gracefully from right to left flank, banking smoothly)
       const t = (p - 0.36) / 0.20;
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.85, -0.85, Math.min(1.0, t * 1.4));
-      bY = -0.16;
-      bRotY = 0.65 + t * 0.65;
+      const smoothT = Math.sin(t * Math.PI * 0.5);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.82, -0.80, smoothT);
+      bY = -0.15 + floatY;
+      bZ = Math.sin(t * Math.PI) * 0.36; // Big sweeping arc towards viewer
+      bRotY = THREE.MathUtils.lerp(0.85, 1.65, smoothT);
+      bRotZ = Math.sin(t * Math.PI) * 0.11; // Banking into turn
     } else if (p < 0.74) {
-      // Stage 4: Chill Architecture (Left flank, rotational reveal with orbiting ice)
+      // Stage 4: Architecture & Chill (Left flank with floating ice and botanicals)
       const t = (p - 0.56) / 0.18;
-      bX = isMobile ? 0 : -0.85;
-      bY = -0.14;
-      bRotY = 1.30 + t * 0.55;
+      bX = isMobile ? 0 : -0.80;
+      bY = -0.13 + floatY;
+      bZ = 0.08 + Math.sin(time * 0.7) * 0.04;
+      bRotY = 1.65 + t * 0.65;
+      bRotX = Math.sin(time * 0.8) * 0.04;
     } else if (p < 0.88) {
-      // Stage 5: Bespoke Engraving (Glides to right, turns frontally to camera for laser engraving)
+      // Stage 5: Bespoke Customization (Glides to right flank, rotates frontally to camera)
       const t = (p - 0.74) / 0.14;
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.85, 0.82, Math.min(1.0, t * 1.3));
-      bY = -0.12;
-      // Frontal presentation angle so user sees the engraved label in full view!
-      bRotY = THREE.MathUtils.lerp(1.85, 0.15, Math.min(1.0, t * 1.3));
+      const smoothT = Math.sin(t * Math.PI * 0.5);
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(-0.80, 0.80, smoothT);
+      bY = -0.12 + floatY;
+      bZ = Math.sin(t * Math.PI) * 0.26;
+      bRotY = THREE.MathUtils.lerp(2.30, 0.12, smoothT); // Direct frontal presentation for label
+      bRotZ = Math.sin(t * Math.PI) * -0.07;
     } else {
-      // Stage 6: Dispatch Vault (Glides to left presentation, slow showroom turntable rotation)
+      // Stage 6: Dispatch Vault (Glides to center-left, slow showroom turntable rotation)
       const t = Math.min(1, (p - 0.88) / 0.12);
-      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.82, -0.85, Math.min(1.0, t * 1.4));
-      bY = -0.14;
-      bRotY = 0.15 + Math.sin(time * 0.6) * 0.18;
+      bX = isMobile ? 0 : THREE.MathUtils.lerp(0.80, -0.75, t);
+      bY = -0.14 + floatY;
+      bZ = 0.05;
+      bRotY = 0.12 + Math.sin(time * 0.6) * 0.18;
     }
 
     // --- 2. Dynamic Scroll Velocity & Cursor Parallax Aerodynamics ---
-    const scrollLeanX = THREE.MathUtils.clamp(velocity * 0.0016, -0.12, 0.12);
-    const scrollLeanZ = THREE.MathUtils.clamp(-velocity * 0.0012, -0.10, 0.10);
+    const scrollLeanX = THREE.MathUtils.clamp(velocity * 0.0022, -0.15, 0.15);
+    const scrollLeanZ = THREE.MathUtils.clamp(-velocity * 0.0018, -0.12, 0.12);
     const cursorTiltX = cursor.y * 0.045;
     const cursorTiltZ = -cursor.x * 0.055;
 
-    const targetRotX = 0.02 + scrollLeanX + cursorTiltX;
-    const targetRotZ = scrollLeanZ + cursorTiltZ;
+    const targetRotX = bRotX + 0.02 + scrollLeanX + cursorTiltX;
+    const targetRotZ = bRotZ + scrollLeanZ + cursorTiltZ;
 
     masterBottleRef.current.position.x = THREE.MathUtils.damp(masterBottleRef.current.position.x, bX, 5, delta);
     masterBottleRef.current.position.y = THREE.MathUtils.damp(masterBottleRef.current.position.y, bY, 5, delta);
+    masterBottleRef.current.position.z = THREE.MathUtils.damp(masterBottleRef.current.position.z, bZ, 5, delta);
     masterBottleRef.current.rotation.x = THREE.MathUtils.damp(masterBottleRef.current.rotation.x, targetRotX, 5, delta);
     masterBottleRef.current.rotation.y = THREE.MathUtils.damp(masterBottleRef.current.rotation.y, bRotY, 5, delta);
     masterBottleRef.current.rotation.z = THREE.MathUtils.damp(masterBottleRef.current.rotation.z, targetRotZ, 5, delta);
@@ -424,6 +479,91 @@ export function BottleAssembly() {
           alphaParticlesRef.current.setMatrixAt(i, dummyMatrix);
         }
         alphaParticlesRef.current.instanceMatrix.needsUpdate = true;
+      }
+    }
+
+    // --- 7b. Social Euphoria Rose Effervescent Micro-Bubbles ---
+    if (socialBubblesRef.current) {
+      const showSocial = fLevel > 0.15 && formula.nootropic === 'social';
+      socialBubblesRef.current.visible = showSocial;
+      if (showSocial) {
+        const maxY = surfaceY - 0.02;
+        for (let i = 0; i < SOCIAL_COUNT; i++) {
+          const sb = socialData[i];
+          sb.y += delta * sb.speed;
+          if (sb.y > maxY) sb.y = -1.18;
+
+          const driftAngle = sb.angle + time * 1.2;
+          const bx = Math.cos(driftAngle) * sb.r + fluidPhysics.sloshRoll * 0.12;
+          const bz = Math.sin(driftAngle) * sb.r + fluidPhysics.sloshPitch * 0.12;
+          const by = sb.y;
+
+          dummyPos.set(bx, by, bz);
+          dummyScale.setScalar(0.9 + Math.sin(time * 4 + sb.pulseSeed) * 0.3);
+          dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+          socialBubblesRef.current.setMatrixAt(i, dummyMatrix);
+        }
+        socialBubblesRef.current.instanceMatrix.needsUpdate = true;
+      }
+    }
+
+    // --- 7c. Parasympathetic Restoration Amethyst Twilight Glints ---
+    if (restorationParticlesRef.current) {
+      const showRestoration = fLevel > 0.15 && formula.nootropic === 'restoration';
+      restorationParticlesRef.current.visible = showRestoration;
+      if (showRestoration) {
+        const maxY = surfaceY - 0.03;
+        for (let i = 0; i < RESTORATION_COUNT; i++) {
+          const rp = restorationData[i];
+          rp.y += delta * rp.vSpeed;
+          if (rp.y > maxY) rp.y = -1.15;
+
+          const orbitAngle = rp.angle + time * rp.orbitSpeed;
+          const ax = Math.cos(orbitAngle) * rp.r + fluidPhysics.sloshRoll * 0.10;
+          const az = Math.sin(orbitAngle) * rp.r + fluidPhysics.sloshPitch * 0.10;
+          const ay = rp.y;
+
+          const pScale = 0.8 + Math.sin(time * 2 + rp.pulseSeed) * 0.4;
+          dummyPos.set(ax, ay, az);
+          dummyScale.setScalar(pScale);
+          dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+          restorationParticlesRef.current.setMatrixAt(i, dummyMatrix);
+        }
+        restorationParticlesRef.current.instanceMatrix.needsUpdate = true;
+      }
+    }
+
+    // --- 7d. Bio-Active Infusion Halo Rings (Pulsing at surface level) ---
+    if (alphaHaloRef.current) {
+      const showAlphaHalo = fLevel > 0.15 && formula.nootropic === 'alpha';
+      alphaHaloRef.current.visible = showAlphaHalo;
+      if (showAlphaHalo) {
+        alphaHaloRef.current.position.y = surfaceY + 0.008;
+        const pulse = 1.0 + Math.sin(time * 4) * 0.08;
+        alphaHaloRef.current.scale.set(pulse, pulse, 1);
+        alphaHaloRef.current.rotation.z += delta * 0.5;
+      }
+    }
+
+    if (socialHaloRef.current) {
+      const showSocialHalo = fLevel > 0.15 && formula.nootropic === 'social';
+      socialHaloRef.current.visible = showSocialHalo;
+      if (showSocialHalo) {
+        socialHaloRef.current.position.y = surfaceY + 0.008;
+        const pulse = 1.0 + Math.sin(time * 5) * 0.10;
+        socialHaloRef.current.scale.set(pulse, pulse, 1);
+        socialHaloRef.current.rotation.z -= delta * 0.6;
+      }
+    }
+
+    if (restorationHaloRef.current) {
+      const showRestorationHalo = fLevel > 0.15 && formula.nootropic === 'restoration';
+      restorationHaloRef.current.visible = showRestorationHalo;
+      if (showRestorationHalo) {
+        restorationHaloRef.current.position.y = surfaceY + 0.008;
+        const pulse = 1.0 + Math.sin(time * 3) * 0.06;
+        restorationHaloRef.current.scale.set(pulse, pulse, 1);
+        restorationHaloRef.current.rotation.z += delta * 0.4;
       }
     }
 
@@ -550,71 +690,120 @@ export function BottleAssembly() {
     // --- 12. Dynamic Liquid Color Transitions ---
     const baseKey = (formula.base || 'yuzu') as BaseDistillate;
     const pal = LIQUID_PALETTES[baseKey] || LIQUID_PALETTES.yuzu;
-    currentLiquidColor.current.lerp(new THREE.Color(pal.glow), delta * 4.0);
-    currentEmissiveColor.current.lerp(new THREE.Color(pal.deepCore), delta * 4.0);
-    currentStreamColor.current.lerp(new THREE.Color(pal.rimHighlight), delta * 4.0);
+    currentLiquidColor.current.lerp(new THREE.Color(pal.glow), delta * 6.0);
+    currentEmissiveColor.current.lerp(new THREE.Color(pal.deepCore), delta * 6.0);
+    currentStreamColor.current.lerp(new THREE.Color(pal.rimHighlight), delta * 6.0);
+
+    // Modify emissive warmth based on Nootropic selection!
+    if (formula.nootropic === 'social') {
+      currentEmissiveColor.current.lerp(new THREE.Color('#9D174D'), delta * 3.0);
+    } else if (formula.nootropic === 'restoration') {
+      currentEmissiveColor.current.lerp(new THREE.Color('#4C1D95'), delta * 3.0);
+    }
 
     if (liquidMaterialRef.current) {
-      liquidMaterialRef.current.color.set('#FFFFFF');
+      liquidMaterialRef.current.color.copy(currentLiquidColor.current);
       liquidMaterialRef.current.emissive.copy(currentEmissiveColor.current);
-      liquidMaterialRef.current.emissiveIntensity = 0.03;
+      liquidMaterialRef.current.emissiveIntensity = 0.10;
     }
 
     if (meniscusMaterialRef.current) {
       meniscusMaterialRef.current.color.copy(currentLiquidColor.current);
       meniscusMaterialRef.current.emissive.copy(currentEmissiveColor.current);
-      meniscusMaterialRef.current.emissiveIntensity = 0.03;
+      meniscusMaterialRef.current.emissiveIntensity = 0.10;
     }
 
     // --- 13. Glass Material Tint (Stage 5 Customization) ---
     if (outerGlassRef.current && glassMaterialRef.current) {
       const tint = formula.glassTint || 'clear';
       let glassColor = '#FFFFFF';
+      let glassAtten = '#FAF6F0';
+      let glassAttenDist = 3.5;
       let glassRoughness = 0.015;
       let glassTrans = 0.96;
+      let glassClearcoat = 1.0;
+      let glassClearcoatRough = 0.015;
 
       if (tint === 'obsidian') {
-        glassColor = '#1F1E24';
-        glassTrans = 0.88;
+        glassColor = '#242322';
+        glassAtten = '#0D0C0B';
+        glassAttenDist = 0.65;
+        glassTrans = 0.72;
+        glassRoughness = 0.04;
       } else if (tint === 'amber') {
-        glassColor = '#C27835';
-        glassTrans = 0.90;
+        glassColor = '#C26D20';
+        glassAtten = '#8A3D0A';
+        glassAttenDist = 0.85;
+        glassTrans = 0.82;
+        glassRoughness = 0.02;
       } else if (tint === 'frosted') {
-        glassRoughness = 0.18;
+        glassColor = '#FAF8F5';
+        glassAtten = '#E8E4DC';
+        glassAttenDist = 1.8;
+        glassTrans = 0.86;
+        glassRoughness = 0.42;
+        glassClearcoat = 0.15;
+        glassClearcoatRough = 0.40;
       }
 
       if (formula.chill === 'glacial' && p >= 0.56) {
-        glassRoughness = Math.max(glassRoughness, 0.08);
+        glassRoughness = Math.max(glassRoughness, 0.14);
       }
 
-      glassMaterialRef.current.color.lerp(new THREE.Color(glassColor), delta * 4);
-      glassMaterialRef.current.roughness = THREE.MathUtils.damp(glassMaterialRef.current.roughness, glassRoughness, 4, delta);
+      glassMaterialRef.current.color.lerp(new THREE.Color(glassColor), delta * 6);
+      glassMaterialRef.current.attenuationColor.lerp(new THREE.Color(glassAtten), delta * 6);
+      glassMaterialRef.current.attenuationDistance = THREE.MathUtils.damp(glassMaterialRef.current.attenuationDistance, glassAttenDist, 4, delta);
       glassMaterialRef.current.transmission = THREE.MathUtils.damp(glassMaterialRef.current.transmission, glassTrans, 4, delta);
+      glassMaterialRef.current.roughness = THREE.MathUtils.damp(glassMaterialRef.current.roughness, glassRoughness, 4, delta);
+      glassMaterialRef.current.clearcoat = THREE.MathUtils.damp(glassMaterialRef.current.clearcoat, glassClearcoat, 4, delta);
+      glassMaterialRef.current.clearcoatRoughness = THREE.MathUtils.damp(glassMaterialRef.current.clearcoatRoughness, glassClearcoatRough, 4, delta);
     }
 
     // --- 14. Cap Metallurgy (Stage 5 Customization) ---
-    if (capMedallionRef.current) {
-      const mat = capMedallionRef.current.material as THREE.MeshStandardMaterial;
-      if (mat) {
-        let targetColor = '#D4AF37'; // brass
-        let metalness = 0.95;
-        let roughness = 0.22;
-        if (formula.seal === 'noir') {
-          targetColor = '#1C1B1A';
-          roughness = 0.35;
-        } else if (formula.seal === 'copper') {
-          targetColor = '#B3542E';
-          roughness = 0.26;
-        } else if (formula.seal === 'silver') {
-          targetColor = '#D1D5DB';
-          roughness = 0.18;
-        } else if (formula.seal === 'gold') {
-          targetColor = '#F59E0B';
-          roughness = 0.16;
+    if (capGroupRef.current) {
+      const seal = formula.seal || 'brass';
+      let targetColor = '#D4AF37'; // brass
+      let targetCoinColor = '#FFF1C2';
+      let metalness = 0.95;
+      let roughness = 0.22;
+
+      if (seal === 'noir') {
+        targetColor = '#171615';
+        targetCoinColor = '#2B2928';
+        metalness = 0.90;
+        roughness = 0.35;
+      } else if (seal === 'copper') {
+        targetColor = '#B3542E';
+        targetCoinColor = '#D97A52';
+        metalness = 0.95;
+        roughness = 0.24;
+      } else if (seal === 'silver') {
+        targetColor = '#D1D5DB';
+        targetCoinColor = '#F3F4F6';
+        metalness = 0.98;
+        roughness = 0.12;
+      } else if (seal === 'gold') {
+        targetColor = '#F59E0B';
+        targetCoinColor = '#FDE68A';
+        metalness = 0.98;
+        roughness = 0.14;
+      }
+
+      if (capMedallionRef.current) {
+        const mat = capMedallionRef.current.material as THREE.MeshStandardMaterial;
+        if (mat) {
+          mat.color.lerp(new THREE.Color(targetColor), delta * 6);
+          mat.metalness = metalness;
+          mat.roughness = roughness;
         }
-        mat.color.lerp(new THREE.Color(targetColor), delta * 4);
-        mat.metalness = metalness;
-        mat.roughness = roughness;
+      }
+      if (capCoinRef.current) {
+        const mat = capCoinRef.current.material as THREE.MeshStandardMaterial;
+        if (mat) {
+          mat.color.lerp(new THREE.Color(targetCoinColor), delta * 6);
+          mat.metalness = metalness;
+          mat.roughness = roughness;
+        }
       }
     }
 
@@ -627,29 +816,55 @@ export function BottleAssembly() {
         let waxColor = '#991B1B'; // crimson
         if (waxType === 'black') waxColor = '#171614';
         else if (waxType === 'gold') waxColor = '#D4AF37';
-        mat.color.lerp(new THREE.Color(waxColor), delta * 4);
+        mat.color.lerp(new THREE.Color(waxColor), delta * 8);
       }
     }
 
-    // --- 16. Orbitals & Modifiers (Rosemary, Shiso, Ice) ---
-    if (orbitalsGroupRef.current) {
-      const isStage4 = p >= 0.56 && p < 0.76;
-      const targetScale = isStage4 ? 1.0 : 0.0;
-      orbitalsGroupRef.current.scale.setScalar(
-        THREE.MathUtils.damp(orbitalsGroupRef.current.scale.x, targetScale, 4, delta)
+    // --- 16. Orbitals & Modifiers (Rosemary, Vetiver, Shiso, Ice) ---
+    const isStage4 = p >= 0.53 && p < 0.77;
+
+    // Ice Cubes (controlled by formula.chill === 'glacial' and isStage4)
+    if (iceGroupRef.current) {
+      const showIce = isStage4 && formula.chill === 'glacial';
+      const targetScale = showIce ? 1.0 : 0.0;
+      iceGroupRef.current.scale.setScalar(
+        THREE.MathUtils.damp(iceGroupRef.current.scale.x, targetScale, 6, delta)
       );
-      orbitalsGroupRef.current.rotation.y += delta * 0.35;
-      orbitalsGroupRef.current.rotation.x = Math.sin(time * 0.8) * 0.06;
+      iceGroupRef.current.rotation.y += delta * 0.45;
+      iceGroupRef.current.rotation.x = Math.sin(time * 0.9) * 0.08;
     }
 
+    // Rosemary botanical sprig
     if (rosemaryRef.current) {
-      rosemaryRef.current.visible = formula.modifier === 'rosemary';
-      rosemaryRef.current.rotation.y += delta * 0.4;
+      const showRosemary = isStage4 && formula.modifier === 'rosemary';
+      const targetScale = showRosemary ? 1.0 : 0.0;
+      rosemaryRef.current.scale.setScalar(
+        THREE.MathUtils.damp(rosemaryRef.current.scale.x, targetScale, 6, delta)
+      );
+      rosemaryRef.current.rotation.y += delta * 0.5;
+      rosemaryRef.current.position.y = 0.1 + Math.sin(time * 1.5) * 0.04;
     }
 
+    // Vetiver root bundle & Fig leaf
+    if (vetiverRef.current) {
+      const showVetiver = isStage4 && formula.modifier === 'vetiver';
+      const targetScale = showVetiver ? 1.0 : 0.0;
+      vetiverRef.current.scale.setScalar(
+        THREE.MathUtils.damp(vetiverRef.current.scale.x, targetScale, 6, delta)
+      );
+      vetiverRef.current.rotation.y += delta * 0.4;
+      vetiverRef.current.position.y = 0.1 + Math.cos(time * 1.4) * 0.04;
+    }
+
+    // Purple Shiso leaves
     if (shisoRef.current) {
-      shisoRef.current.visible = formula.modifier === 'shiso';
-      shisoRef.current.rotation.y -= delta * 0.5;
+      const showShiso = isStage4 && formula.modifier === 'shiso';
+      const targetScale = showShiso ? 1.0 : 0.0;
+      shisoRef.current.scale.setScalar(
+        THREE.MathUtils.damp(shisoRef.current.scale.x, targetScale, 6, delta)
+      );
+      shisoRef.current.rotation.y -= delta * 0.6;
+      shisoRef.current.position.y = 0.1 + Math.sin(time * 1.7) * 0.04;
     }
   });
 
@@ -727,22 +942,24 @@ export function BottleAssembly() {
       </instancedMesh>
 
       {/* ========================================================================= */}
-      {/* 4. SINGLE UNIFIED LIQUID MESH (Zero Z-Fighting, Perfect Water-Tight)     */}
+      {/* 4. SINGLE UNIFIED LIQUID MESH (Translucent, Glowing, Zero Z-Fighting)    */}
       {/* ========================================================================= */}
-      <mesh ref={liquidBodyRef} geometry={liquidGeometry} renderOrder={1} visible={false}>
+      <mesh ref={liquidBodyRef} geometry={liquidGeometry} renderOrder={2} visible={false}>
         <meshStandardMaterial
           ref={liquidMaterialRef}
           map={liquidTextures.yuzu}
           color="#FFFFFF"
           emissive="#120600"
-          emissiveIntensity={0.03}
-          roughness={0.018}
-          metalness={0.0}
+          emissiveIntensity={0.08}
+          roughness={0.035}
+          metalness={0.02}
+          transparent={true}
+          opacity={0.88}
         />
       </mesh>
 
       {/* Meniscus Top Surface Disc with Capillary Tension */}
-      <mesh ref={meniscusRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1} visible={false}>
+      <mesh ref={meniscusRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2} visible={false}>
         <meshStandardMaterial
           ref={meniscusMaterialRef}
           color="#F59E0B"
@@ -750,6 +967,17 @@ export function BottleAssembly() {
           metalness={0.0}
           side={THREE.DoubleSide}
         />
+      </mesh>
+
+      {/* Bio-Active Nootropic Infusion Surface Halo Rings */}
+      <mesh ref={alphaHaloRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2} visible={false}>
+        <meshBasicMaterial color="#F59E0B" transparent opacity={0.55} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh ref={socialHaloRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2} visible={false}>
+        <meshBasicMaterial color="#BE185D" transparent opacity={0.55} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh ref={restorationHaloRef} geometry={meniscusGeometry} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2} visible={false}>
+        <meshBasicMaterial color="#7C3AED" transparent opacity={0.55} side={THREE.DoubleSide} />
       </mesh>
 
       {/* Suspended Botanical Effervescent Micro-Bubbles */}
@@ -784,10 +1012,42 @@ export function BottleAssembly() {
         />
       </instancedMesh>
 
+      {/* Sensory Euphoria Sparkling Rose Effervescent Bubbles */}
+      <instancedMesh
+        ref={socialBubblesRef}
+        args={[socialGeometry, undefined, SOCIAL_COUNT]}
+        renderOrder={1}
+        visible={false}
+      >
+        <meshStandardMaterial
+          color="#FDA4AF"
+          emissive="#BE185D"
+          emissiveIntensity={0.6}
+          roughness={0.02}
+          metalness={0.05}
+        />
+      </instancedMesh>
+
+      {/* Parasympathetic Restoration Amethyst Twilight Micro-Glints */}
+      <instancedMesh
+        ref={restorationParticlesRef}
+        args={[restorationGeometry, undefined, RESTORATION_COUNT]}
+        renderOrder={1}
+        visible={false}
+      >
+        <meshStandardMaterial
+          color="#C4B5FD"
+          emissive="#7C3AED"
+          emissiveIntensity={0.7}
+          roughness={0.02}
+          metalness={0.05}
+        />
+      </instancedMesh>
+
       {/* ========================================================================= */}
       {/* 5. SOLID OPTICAL CRYSTAL DECANTER (Refracts Liquid & Studio Lights)       */}
       {/* ========================================================================= */}
-      <mesh ref={outerGlassRef} geometry={glassGeometry} renderOrder={2} castShadow receiveShadow>
+      <mesh ref={outerGlassRef} geometry={glassGeometry} renderOrder={3} castShadow receiveShadow>
         <meshPhysicalMaterial
           ref={glassMaterialRef}
           transmission={0.96}
@@ -826,7 +1086,7 @@ export function BottleAssembly() {
           />
         </mesh>
 
-        <mesh geometry={coinGeometry} position={[0, 1.61, 0]}>
+        <mesh ref={capCoinRef} geometry={coinGeometry} position={[0, 1.61, 0]}>
           <meshStandardMaterial
             color="#FFF1C2"
             metalness={0.95}
@@ -836,7 +1096,7 @@ export function BottleAssembly() {
       </group>
 
       {/* Optional Neck Wax Dip Seal */}
-      <mesh ref={waxDipRef} geometry={waxGeometry} position={[0, 0, 0]} renderOrder={4} visible={false}>
+      <mesh ref={waxDipRef} geometry={waxGeometry} position={[0, 0, 0]} renderOrder={5} visible={false}>
         <meshStandardMaterial color="#991B1B" roughness={0.35} metalness={0.1} />
       </mesh>
 
@@ -860,9 +1120,9 @@ export function BottleAssembly() {
       {/* ========================================================================= */}
       {/* 8. EXTERNAL FLOATING BOTANICAL ORBITALS & ICE (Stage 4)                  */}
       {/* ========================================================================= */}
-      <group ref={orbitalsGroupRef} scale={[0, 0, 0]} position={[0, 0.1, 0]} renderOrder={4}>
-        {/* Hand-Cut Artisanal Crystal Ice Cubes */}
-        <mesh geometry={iceGeometry} position={[0.92, 0.25, 0.25]} rotation={[0.4, 0.6, 0.2]}>
+      {/* Hand-Cut Artisanal Crystal Ice Cubes (Active in Glacial Serve) */}
+      <group ref={iceGroupRef} scale={[0, 0, 0]} position={[0, 0.1, 0]} renderOrder={4}>
+        <mesh geometry={iceGeometry} position={[0.88, 0.25, 0.25]} rotation={[0.4, 0.6, 0.2]}>
           <meshPhysicalMaterial
             transmission={0.94}
             roughness={0.05}
@@ -872,7 +1132,7 @@ export function BottleAssembly() {
             clearcoat={1.0}
           />
         </mesh>
-        <mesh geometry={iceGeometry} position={[-0.88, -0.35, 0.35]} rotation={[0.2, 0.8, 0.5]} scale={[0.7, 0.7, 0.7]}>
+        <mesh geometry={iceGeometry} position={[-0.82, -0.32, 0.35]} rotation={[0.2, 0.8, 0.5]} scale={[0.7, 0.7, 0.7]}>
           <meshPhysicalMaterial
             transmission={0.94}
             roughness={0.05}
@@ -882,26 +1142,49 @@ export function BottleAssembly() {
             clearcoat={1.0}
           />
         </mesh>
-
         {/* Wild Alpine Juniper Berries */}
-        <mesh geometry={berryGeometry} position={[0.82, -0.32, -0.15]}>
+        <mesh geometry={berryGeometry} position={[0.78, -0.28, -0.15]}>
           <meshStandardMaterial color="#1B3A2B" roughness={0.45} />
         </mesh>
-        <mesh geometry={berryGeometry} position={[-0.75, 0.48, -0.2]}>
+        <mesh geometry={berryGeometry} position={[-0.72, 0.42, -0.2]}>
           <meshStandardMaterial color="#224231" roughness={0.45} />
         </mesh>
       </group>
 
       {/* Floating Charred Rosemary Botanical Sprig */}
-      <mesh ref={rosemaryRef} geometry={rosemaryGeometry} position={[0.15, -0.2, 0.1]} rotation={[0.3, 0.4, 0.2]} renderOrder={1} visible={false}>
-        <meshStandardMaterial color="#2E4A28" roughness={0.6} />
-      </mesh>
+      <group ref={rosemaryRef} scale={[0, 0, 0]} position={[0.78, 0.1, 0.2]} renderOrder={4}>
+        <mesh geometry={rosemaryGeometry} rotation={[0.3, 0.4, 0.2]}>
+          <meshStandardMaterial color="#2E4A28" roughness={0.6} />
+        </mesh>
+        <mesh position={[0.02, 0.08, 0]} rotation={[0.8, 0.2, 0.5]} scale={[0.04, 0.12, 0.04]}>
+          <sphereGeometry args={[1, 8, 8]} />
+          <meshStandardMaterial color="#3D6335" roughness={0.5} />
+        </mesh>
+        <mesh position={[-0.02, -0.06, 0.02]} rotation={[-0.6, 0.4, -0.3]} scale={[0.04, 0.12, 0.04]}>
+          <sphereGeometry args={[1, 8, 8]} />
+          <meshStandardMaterial color="#223E1E" roughness={0.5} />
+        </mesh>
+      </group>
+
+      {/* Floating Smoked Vetiver Root & Fig Leaf */}
+      <group ref={vetiverRef} scale={[0, 0, 0]} position={[0.78, 0.1, 0.2]} renderOrder={4}>
+        <mesh geometry={vetiverRootGeometry} rotation={[0.4, 0.2, 0.3]}>
+          <meshStandardMaterial color="#854D0E" roughness={0.7} />
+        </mesh>
+        <mesh geometry={figLeafGeometry} position={[0.1, 0.15, 0]} rotation={[0.2, 0.8, 0.5]} scale={[0.85, 0.05, 1.15]}>
+          <meshStandardMaterial color="#365314" roughness={0.45} transparent opacity={0.9} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
 
       {/* Floating Purple Shiso Leaves Orbitals */}
-      <group ref={shisoRef} position={[0.85, 0.1, 0]} renderOrder={4} visible={false}>
-        <mesh rotation={[0.5, 0.3, 0.2]} scale={[0.18, 0.02, 0.26]}>
+      <group ref={shisoRef} scale={[0, 0, 0]} position={[0.78, 0.1, 0.2]} renderOrder={4}>
+        <mesh rotation={[0.5, 0.3, 0.2]} scale={[0.22, 0.02, 0.32]}>
           <sphereGeometry args={[1, 16, 16]} />
-          <meshStandardMaterial color="#4A154B" roughness={0.5} side={THREE.DoubleSide} />
+          <meshStandardMaterial color="#581C87" roughness={0.45} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[-0.08, -0.06, 0.05]} rotation={[-0.3, 0.5, 0.1]} scale={[0.16, 0.02, 0.24]}>
+          <sphereGeometry args={[1, 16, 16]} />
+          <meshStandardMaterial color="#3B0764" roughness={0.45} side={THREE.DoubleSide} />
         </mesh>
       </group>
     </group>

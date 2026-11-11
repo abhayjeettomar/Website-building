@@ -200,6 +200,7 @@ export function createProceduralLabel(): LabelController {
     bCtx.lineWidth = 2.5;
     bCtx.strokeRect(40, 40, width - 80, height - 80);
 
+    diffuseMap.needsUpdate = true;
     bumpMap.needsUpdate = true;
   }
 
