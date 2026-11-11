@@ -447,7 +447,7 @@ export function ScrollStagesOverlay() {
           pointerEvents: s3.pointerEvents,
           display: s3.display,
         }}
-        className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-[#FCFAF7]/95 p-5 sm:p-6 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_50px_-15px_rgba(23,22,20,0.07)] my-auto">
           <div className="flex items-baseline justify-between mb-1">
@@ -524,7 +524,7 @@ export function ScrollStagesOverlay() {
           pointerEvents: s4.pointerEvents,
           display: s4.display,
         }}
-        className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[400px] pointer-events-auto bg-[#FCFAF7]/95 p-5 sm:p-6 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_50px_-15px_rgba(23,22,20,0.07)] my-auto">
           <div className="flex items-baseline justify-between mb-1">
@@ -765,7 +765,7 @@ export function ScrollStagesOverlay() {
           pointerEvents: s6.pointerEvents,
           display: s6.display,
         }}
-        className="absolute inset-0 px-6 sm:px-10 lg:px-16 xl:px-24 flex items-center justify-end transition-transform duration-100 ease-out"
+        className="absolute inset-0 px-6 sm:px-12 lg:px-20 flex items-center justify-start transition-transform duration-100 ease-out"
       >
         <div className="w-full max-w-[420px] pointer-events-auto bg-[#FCFAF7]/95 p-5 sm:p-6 rounded-3xl border border-[#171614]/[0.08] backdrop-blur-xl shadow-[0_20px_50px_-15px_rgba(23,22,20,0.07)] my-auto">
           <div className="flex items-baseline justify-between mb-1">

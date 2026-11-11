@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenisScroll } from './hooks/useLenisScroll';
 import { scrollStore } from './store/scrollStore';
 
-import { ExperienceCanvas } from './canvas/ExperienceCanvas';
+import { CinematicBottleCanvas } from './canvas/CinematicBottleCanvas';
 import { Navbar } from './components/Navbar';
 import { HeroBackplate } from './components/HeroBackplate';
 import { ScrollStagesOverlay } from './components/ScrollStagesOverlay';
@@ -57,16 +57,14 @@ export function App() {
       {/* 3. Optical Backplate Headline ("AETHER" z-10) - Refracted by the 3D bottle */}
       <HeroBackplate />
 
-      {/* 4. Fixed 100vw x 100vh Three.js WebGL Canvas (z-20) */}
-      {/* The 3D bottle animates continuously from top to bottom across ALL stages */}
-      <ExperienceCanvas />
+      {/* 4. Photorealistic Cinema Canvas (z-20) - 100% video-grade bottle, liquid physics, and crystal glass */}
+      <CinematicBottleCanvas />
 
       {/* 5. Fixed Interactive Stage HUD & Formulation Overlays (z-30) */}
-      {/* Interactive options: Distillate Base -> Nootropic Infusion -> Chill Architecture -> Bespoke Engraving -> Dispatch */}
       <ScrollStagesOverlay />
 
-      {/* 6. Dynamic 420vh Scroll Track (Responsive, frictionless phase progression) */}
-      <main id="pinned-scroll-container" className="relative w-full h-[420vh] pointer-events-none" />
+      {/* 6. Dynamic 320vh Scroll Track (Snappy, frictionless phase progression) */}
+      <main id="pinned-scroll-container" className="relative w-full h-[320vh] pointer-events-none" />
     </div>
   );
 }

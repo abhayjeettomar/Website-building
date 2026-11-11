@@ -15,11 +15,11 @@ export function useLenisScroll() {
     // Lenis v1.1.x: snappy, responsive smooth scroll with zero dead-lag
     const lenis = new Lenis({
       autoRaf: false,
-      duration: 0.85,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -8 * t)),
+      duration: 0.65,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -9 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1.2,
-      touchMultiplier: 1.6,
+      wheelMultiplier: 1.35,
+      touchMultiplier: 1.8,
     });
 
     lenisRef.current = lenis;
